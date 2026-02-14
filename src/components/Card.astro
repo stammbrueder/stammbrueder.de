@@ -1,0 +1,37 @@
+---
+import { Picture } from 'astro:assets';
+import { getImage } from '../utils/imageMap';
+
+export interface Props {
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  href: string;
+  category?: string;
+}
+
+const { title, description, image, imageAlt, href, category } = Astro.props;
+
+// Verwende zentrales Image-Mapping - immer Astro Picture-Komponente
+const imageSrc = getImage(image);
+---
+
+<a href={href} class="card fade-in">
+  <Picture 
+    src={imageSrc}
+    alt={imageAlt}
+    class="card__image"
+    widths={[400, 800, 1200]}
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    formats={['avif', 'webp', 'jpg']}
+    loading="lazy"
+    quality={85}
+  />
+  <div class="card__content">
+    {category && <span class="category">{category}</span>}
+    <h3 class="card__title">{title}</h3>
+    <p class="card__text">{description}</p>
+    <span class="card-link">Mehr erfahren →</span>
+  </div>
+</a>

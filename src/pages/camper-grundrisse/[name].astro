@@ -1,0 +1,125 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import GallerySlider from '../../components/GallerySlider.astro';
+import { getImage } from '../../utils/imageMap';
+import { getAllGrundrissNames, getGrundrissByName } from '../../data/grundrisse';
+
+export async function getStaticPaths() {
+  const grundrissNames = getAllGrundrissNames();
+  return grundrissNames.map((name) => ({
+    params: { name },
+  }));
+}
+
+const { name } = Astro.params;
+const grundriss = getGrundrissByName(name || '');
+
+if (!grundriss) {
+  return Astro.redirect('/404');
+}
+
+// Konvertiere Bilder in das Format für GallerySlider
+const galleryItems = grundriss.images.map(image => ({
+  type: 'image' as const,
+  src: image.src,
+  alt: image.alt
+}));
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": `${grundriss.title} – Campergrundriss`,
+  "description": grundriss.description
+};
+---
+
+<BaseLayout
+  title={`${grundriss.title} – Campergrundriss`}
+  description={grundriss.description}
+  ogImage={`https://stammbrueder.de${grundriss.images[0].src}`}
+  ogUrl={`https://stammbrueder.de/camper-grundrisse/${name}`}
+  canonical={`https://stammbrueder.de/camper-grundrisse/${name}`}
+  structuredData={structuredData}
+  bodyClass="subpage"
+>
+  <Header />
+  
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>{grundriss.title}</h1>
+        <p class="page-subtitle">{grundriss.shortDescription}</p>
+      </div>
+    </section>
+
+    {/* Grundriss Beschreibung - Text links, Bild rechts */}
+    <section class="tile-section">
+      <div class="container">
+        <div class="tile-row">
+          <div class="tile tile--content">
+            <h2>Über den Blue-Grundriss</h2>
+            <div class="tile-content">
+              <p>
+                {grundriss.description}
+              </p>
+              {grundriss.additionalInfo && (
+                <p>
+                  {grundriss.additionalInfo}
+                </p>
+              )}
+            </div>
+            <div class="cta-section" style="margin-top: var(--spacing-lg);">
+              <a href="/kontakt" class="btn btn--primary">Projekt anfragen</a>
+            </div>
+          </div>
+          <div class="tile tile--image grundriss-image">
+            <Picture 
+              src={getImage('/images/camper-grundriss/camper-grundriss-kastenwagen-blue.png')!}
+              alt={`${grundriss.title} Grundriss-Übersicht`}
+              widths={[400, 800, 1200]}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+              formats={['avif', 'webp', 'png']}
+              loading="eager"
+              quality={85}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* Galerie mit CAD-Zeichnungen */}
+    <section class="section">
+      <div class="container">
+        <h2>CAD-Zeichnungen des Blue-Grundrisses</h2>
+        <p class="section-intro">
+          Die folgenden Planungszeichnungen zeigen den Blue-Grundriss aus verschiedenen Perspektiven. Sie dienen als Basis für die individuelle Planung und Anpassung an deine Bedürfnisse.
+        </p>
+        <GallerySlider items={galleryItems} />
+      </div>
+    </section>
+
+    {/* Facts - Standard-Elemente */}
+    <section class="section">
+      <div class="container">
+        <div class="content-section">
+          <h2>Standard-Elemente des Blue-Grundrisses</h2>
+          <div class="tile-content">
+            <ul>
+              {grundriss.elements.map((element) => (
+                <li>
+                  <strong>{element.name}</strong> – {element.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="cta-section" style="margin-top: var(--spacing-lg);">
+            <a href="/kontakt" class="btn btn--primary">Projekt anfragen</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+

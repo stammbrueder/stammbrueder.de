@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+---
+
+<BaseLayout
+  title="Datenschutz – Stammbrüder"
+  description="DSGVO-konforme Datenschutzerklärung der Stammbrüder – keine Cookies, kein Tracking."
+  ogUrl="https://stammbrueder.de/datenschutz"
+  canonical="https://stammbrueder.de/datenschutz"
+  bodyClass="subpage"
+>
+  <Header />
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Datenschutz</h1>
+        <p class="page-subtitle">Datenschutzerklärung gemäß DSGVO</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="content-main">
+            <h2>1. Geltungsbereich</h2>
+            <p>Diese Datenschutzerklärung informiert dich über die Art, den Umfang und Zweck der Verarbeitung personenbezogener Daten auf dieser Website.</p>
+            <p>Es handelt sich um eine statische Website ohne eigenes Backend und ohne Datenbank.</p>
+
+            <h2>2. Verantwortliche Stelle</h2>
+            <p><b>Stammbrüder GbR</b><br>
+            <p>Tony Findeisen, Ralf Karig</p>
+            <p>Parkstraße 60<br>
+            04288 Leipzig</p>
+            <p><b>E-Mail:</b> <a href="mailto:hallo@stammbrueder.de">hallo@stammbrueder.de</a></p>
+
+            <h2>3. Hosting über GitHub Pages</h2>
+            <p>Unsere Website wird über <b>GitHub Pages</b> bereitgestellt, einem Dienst der:</p>
+            <p><b>GitHub, Inc.</b><br>
+            88 Colin P. Kelly Jr St<br>
+            San Francisco, CA 94107<br>
+            USA</p>
+            <p>Beim Besuch der Website werden Daten automatisch von GitHub verarbeitet (z. B. IP-Adresse, Datum/Uhrzeit, Browserinformationen).</p>
+            <p>Weitere Informationen findest du in der Datenschutzerklärung von GitHub:</p>
+            <p><a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer">https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement</a></p>
+            <p>GitHub veranlasst den technischen Betrieb und nutzt hierfür weltweit verteilte Server sowie ein Content Delivery Network (Fastly).</p>
+
+            <h2>4. Datenerhebung und -verwendung</h2>
+
+            <h3>4.1 Server-Logfiles (durch GitHub)</h3>
+            <p>Bei jedem Zugriff auf unsere Website werden automatisch Informationen erhoben und in Logfiles gespeichert:</p>
+            <ul>
+              <li>IP-Adresse des zugreifenden Rechners</li>
+              <li>Datum und Uhrzeit des Zugriffs</li>
+              <li>Name und URL der abgerufenen Datei</li>
+              <li>Referrer-URL</li>
+              <li>Verwendeter Browser und ggf. Betriebssystem</li>
+            </ul>
+            <p><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der technischen Bereitstellung und Sicherheit der Website)</p>
+            <p><b>Speicherdauer:</b> GitHub löscht Logdaten üblicherweise nach kurzer Zeit automatisch.</p>
+
+            <h3>4.2 Kontaktaufnahme</h3>
+            <p>Wenn du uns per E-Mail kontaktierst, speichern wir die von dir übermittelten Daten (z. B. E-Mail-Adresse, Name, Telefonnummer), um deine Anfrage zu bearbeiten.</p>
+            <p><b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. f DSGVO</p>
+            <p><b>Speicherdauer:</b> Die Daten werden gelöscht, sobald deine Anfrage abschließend bearbeitet ist.</p>
+
+            <h2>5. Cookies & Tracking</h2>
+            <p>Auf dieser Website werden <b>keine Cookies gesetzt</b>.</p>
+            <p>Es findet <b>kein Tracking</b> und keine Analyse deines Nutzerverhaltens statt.</p>
+
+            <h2>6. Verschlüsselung</h2>
+            <p>Die Übertragung deiner Daten erfolgt ausschließlich über eine <b>SSL-/TLS-verschlüsselte Verbindung</b> (HTTPS).</p>
+
+            <h2>7. Deine Rechte</h2>
+            <p>Du hast folgende Rechte hinsichtlich deiner personenbezogenen Daten:</p>
+            <ul>
+              <li>Auskunft (Art. 15 DSGVO)</li>
+              <li>Berichtigung (Art. 16 DSGVO)</li>
+              <li>Löschung (Art. 17 DSGVO)</li>
+              <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+              <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+              <li>Widerspruch (Art. 21 DSGVO)</li>
+            </ul>
+
+            <h2>8. Änderungen dieser Datenschutzerklärung</h2>
+            <p>Wir behalten uns vor, diese Datenschutzerklärung jederzeit zu aktualisieren, um sie an geänderte rechtliche Anforderungen oder technische Entwicklungen anzupassen.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

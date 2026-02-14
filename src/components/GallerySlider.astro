@@ -1,0 +1,299 @@
+---
+import { Picture } from 'astro:assets';
+import { getImage } from '../utils/imageMap';
+import Lightbox from './Lightbox.astro';
+import LightboxInteractions from './LightboxInteractions.astro';
+
+export interface Props {
+  items: Array<{
+    type: 'image' | 'video';
+    src: string;
+    alt: string;
+    poster?: string; // Optional für Videos
+  }>;
+  widths?: number[];
+  sizes?: string;
+  formats?: string[];
+  quality?: number;
+  eagerLoadCount?: number; // Anzahl der Items mit eager loading
+}
+
+const {
+  items,
+  widths = [200, 400, 800],
+  sizes = "(max-width: 768px) 50vw, 400px",
+  formats = ['avif', 'webp', 'jpg'],
+  quality = 85,
+  eagerLoadCount = 3
+} = Astro.props;
+
+const totalItems = items.length;
+const showSlider = totalItems >= 2;
+const cloneCount = totalItems === 2 ? 10 : 20;
+---
+
+<div class="gallery-slider-wrapper">
+  {showSlider ? (
+    <div class="gallery-grid" data-slider="true" data-original-count={totalItems}>
+      <div class="gallery-slider-track">
+        {/* Duplikate am Anfang: Kopien der letzten Items für Infinite Loop */}
+        {(() => {
+          const result = [];
+          for (let i = 0; i < cloneCount; i++) {
+            const itemIndex = (totalItems - cloneCount + i + totalItems) % totalItems;
+            const item = items[itemIndex];
+            if (!item) continue;
+            
+            if (item.type === 'image') {
+              const imageSrc = getImage(item.src);
+              result.push(
+                <div 
+                  class="gallery-item gallery-item-clone" 
+                  data-image={item.src} 
+                  data-lightbox-index={itemIndex}
+                  data-original-index={itemIndex} 
+                  data-clone="start"
+                >
+                  <Picture 
+                    src={imageSrc}
+                    alt={item.alt}
+                    widths={widths}
+                    sizes={sizes}
+                    formats={formats}
+                    loading="lazy"
+                    quality={quality}
+                  />
+                </div>
+              );
+            } else if (item.type === 'video') {
+              const posterSrc = item.poster ? getImage(item.poster) : null;
+              result.push(
+                <div 
+                  class="gallery-item gallery-item-clone" 
+                  data-type="video" 
+                  data-video-src={item.src} 
+                  data-image={item.poster || item.src} 
+                  data-lightbox-index={itemIndex}
+                  data-original-index={itemIndex} 
+                  data-clone="start"
+                >
+                  {posterSrc ? (
+                    <Picture 
+                      src={posterSrc}
+                      alt={item.alt}
+                      widths={widths}
+                      sizes={sizes}
+                      formats={formats}
+                      loading="lazy"
+                      quality={quality}
+                    />
+                  ) : (
+                    <img src={item.src} alt={item.alt} />
+                  )}
+                </div>
+              );
+            }
+          }
+          return result;
+        })()}
+        
+        {/* Original Items (Bilder und Videos) */}
+        {items.map((item, index) => {
+          const loadingAttr = index < eagerLoadCount ? 'eager' : 'lazy';
+          
+          if (item.type === 'image') {
+            const imageSrc = getImage(item.src);
+            return (
+              <div 
+                class="gallery-item" 
+                data-type="image" 
+                data-image={item.src} 
+                data-lightbox-index={index}
+                data-index={index} 
+                data-original-index={index}
+              >
+                <Picture 
+                  src={imageSrc}
+                  alt={item.alt}
+                  widths={widths}
+                  sizes={sizes}
+                  formats={formats}
+                  loading={loadingAttr}
+                  quality={quality}
+                />
+              </div>
+            );
+          } else if (item.type === 'video') {
+            const posterSrc = item.poster ? getImage(item.poster) : null;
+            return (
+              <div 
+                class="gallery-item" 
+                data-type="video" 
+                data-video-src={item.src} 
+                data-image={item.poster || item.src} 
+                data-lightbox-index={index}
+                data-index={index} 
+                data-original-index={index}
+              >
+                {posterSrc ? (
+                  <Picture 
+                    src={posterSrc}
+                    alt={item.alt}
+                    widths={widths}
+                    sizes={sizes}
+                    formats={formats}
+                    loading={loadingAttr}
+                    quality={quality}
+                  />
+                ) : (
+                  <img src={item.src} alt={item.alt} />
+                )}
+              </div>
+            );
+          }
+        })}
+        
+        {/* Duplikate am Ende: Kopien der ersten Items für Infinite Loop */}
+        {(() => {
+          const result = [];
+          for (let i = 0; i < cloneCount; i++) {
+            const itemIndex = i % totalItems;
+            const item = items[itemIndex];
+            if (!item) continue;
+            
+            if (item.type === 'image') {
+              const imageSrc = getImage(item.src);
+              result.push(
+                <div 
+                  class="gallery-item gallery-item-clone" 
+                  data-image={item.src} 
+                  data-lightbox-index={itemIndex}
+                  data-original-index={itemIndex} 
+                  data-clone="end"
+                >
+                  <Picture 
+                    src={imageSrc}
+                    alt={item.alt}
+                    widths={widths}
+                    sizes={sizes}
+                    formats={formats}
+                    loading="lazy"
+                    quality={quality}
+                  />
+                </div>
+              );
+            } else if (item.type === 'video') {
+              const posterSrc = item.poster ? getImage(item.poster) : null;
+              result.push(
+                <div 
+                  class="gallery-item gallery-item-clone" 
+                  data-type="video" 
+                  data-video-src={item.src} 
+                  data-image={item.poster || item.src} 
+                  data-lightbox-index={itemIndex}
+                  data-original-index={itemIndex} 
+                  data-clone="end"
+                >
+                  {posterSrc ? (
+                    <Picture 
+                      src={posterSrc}
+                      alt={item.alt}
+                      widths={widths}
+                      sizes={sizes}
+                      formats={formats}
+                      loading="lazy"
+                      quality={quality}
+                    />
+                  ) : (
+                    <img src={item.src} alt={item.alt} />
+                  )}
+                </div>
+              );
+            }
+          }
+          return result;
+        })()}
+      </div>
+      <button class="gallery-slider-btn gallery-slider-prev" aria-label="Vorheriges Bild">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <button class="gallery-slider-btn gallery-slider-next" aria-label="Nächstes Bild">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+      <div class="gallery-slider-dots" data-total-images={totalItems}>
+        {items.map((_, index) => (
+          <button class="gallery-slider-dot" data-slide={index} aria-label={`Gehe zu Bild ${index + 1}`}></button>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div class="gallery-grid" data-original-count={totalItems}>
+      {/* Standard Grid Layout für 1 Item */}
+      {items.map((item, index) => {
+        const loadingAttr = index < 1 ? 'eager' : 'lazy';
+        
+        if (item.type === 'image') {
+          const imageSrc = getImage(item.src);
+          return (
+            <div 
+              class="gallery-item" 
+              data-type="image" 
+              data-image={item.src} 
+              data-lightbox-index={index}
+              data-index={index} 
+              data-original-index={index}
+            >
+              {imageSrc ? (
+                <Picture 
+                  src={imageSrc}
+                  alt={item.alt}
+                  widths={widths}
+                  sizes={sizes}
+                  formats={formats}
+                  loading={loadingAttr}
+                  quality={quality}
+                />
+              ) : null}
+            </div>
+          );
+        } else if (item.type === 'video') {
+          const posterSrc = item.poster ? getImage(item.poster) : null;
+          return (
+            <div 
+              class="gallery-item" 
+              data-type="video" 
+              data-video-src={item.src} 
+              data-image={item.poster || item.src} 
+              data-lightbox-index={index}
+              data-index={index} 
+              data-original-index={index}
+            >
+              {posterSrc ? (
+                <Picture 
+                  src={posterSrc}
+                  alt={item.alt}
+                  widths={widths}
+                  sizes={sizes}
+                  formats={formats}
+                  loading={loadingAttr}
+                  quality={quality}
+                />
+              ) : (
+                <img src={item.src} alt={item.alt} />
+              )}
+            </div>
+          );
+        }
+      })}
+    </div>
+  )}
+  
+  {/* Lightbox-Komponente einbinden */}
+  <Lightbox items={items} />
+  <LightboxInteractions items={items} />
+</div>
+

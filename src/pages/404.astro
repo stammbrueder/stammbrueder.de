@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "404 - Seite nicht gefunden",
+  "description": "Die angeforderte Seite konnte nicht gefunden werden."
+};
+---
+
+<BaseLayout
+  title="404 - Seite nicht gefunden | Stammbrüder"
+  description="Die angeforderte Seite konnte nicht gefunden werden. Zurück zur Startseite."
+  canonical="https://stammbrueder.de/404"
+  structuredData={structuredData}
+  bodyClass="error-page"
+>
+  <Header />
+  
+  <main id="main-content">
+    <section class="section error-section">
+      <div class="container">
+        <div class="error-content">
+          <h1 class="error-title">404</h1>
+          <h2 class="error-subtitle">Seite nicht gefunden</h2>
+          <p class="error-description">
+            Die angeforderte Seite existiert leider nicht. Möglicherweise wurde sie verschoben oder die URL ist falsch.
+          </p>
+          <div class="error-actions">
+            <a href="/" class="btn btn--primary">Zur Startseite</a>
+            <a href="/kontakt" class="btn btn--outline">Kontakt aufnehmen</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .error-section {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl) 0;
+  }
+
+  .error-content {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .error-title {
+    font-size: 8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0;
+    color: var(--color-primary, #2C3333);
+    font-family: var(--font-heading, 'Playfair Display', serif);
+  }
+
+  .error-subtitle {
+    font-size: 2rem;
+    margin: var(--spacing-md) 0 var(--spacing-sm);
+    color: var(--color-text, #1E1E1E);
+  }
+
+  .error-description {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary, #666);
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.6;
+  }
+
+  .error-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .error-nav {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--color-border, #e0e0e0);
+  }
+
+  .error-nav h3 {
+    font-size: 1.125rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text, #1E1E1E);
+  }
+
+  .error-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    justify-content: center;
+  }
+
+  .error-nav li {
+    margin: 0;
+  }
+
+  .error-nav a {
+    color: var(--color-primary, #2C3333);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .error-nav a:hover {
+    color: var(--color-primary-hover, #1a1f1f);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .error-title {
+      font-size: 5rem;
+    }
+
+    .error-subtitle {
+      font-size: 1.5rem;
+    }
+
+    .error-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .error-actions .btn {
+      width: 100%;
+    }
+  }
+</style>
+

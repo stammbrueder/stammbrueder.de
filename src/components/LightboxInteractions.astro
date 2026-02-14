@@ -1,0 +1,383 @@
+---
+// LightboxInteractions Komponente mit client:visible für partielle Hydration
+// Migriert von public/js/main.js initLightbox() und initGalleryItems()
+
+export interface Props {
+  items: Array<{
+    type: 'image' | 'video';
+    src: string;
+    alt: string;
+    poster?: string;
+  }>;
+}
+
+const { items } = Astro.props;
+---
+
+<script client:load define:vars={{ items }}>
+  // Lightbox functionality - migriert von main.js
+  function initLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox) {
+      return false;
+    }
+    
+    const lightboxImages = document.getElementById('lightbox-images');
+    const lightboxLoading = document.getElementById('lightbox-loading');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    
+    let currentLightboxIndex = -1;
+    let totalItems = 0;
+    
+    function getAllLightboxItems() {
+      if (!lightboxImages) return [];
+      const pictures = Array.from(lightboxImages.querySelectorAll('.lightbox-picture'));
+      const videos = Array.from(lightboxImages.querySelectorAll('.lightbox-video'));
+      const allItems = [...pictures, ...videos].sort((a, b) => {
+        const indexA = parseInt(a.getAttribute('data-lightbox-index')) || 0;
+        const indexB = parseInt(b.getAttribute('data-lightbox-index')) || 0;
+        return indexA - indexB;
+      });
+      totalItems = allItems.length;
+      return allItems;
+    }
+    
+    function hideAllLightboxItems() {
+      const items = getAllLightboxItems();
+      items.forEach(item => {
+        item.style.display = 'none';
+      });
+    }
+    
+    function showLightboxItem(index) {
+      hideAllLightboxItems();
+      const items = getAllLightboxItems();
+      if (index >= 0 && index < items.length) {
+        const item = items[index];
+        item.style.display = 'block';
+        
+        let altText = '';
+        if (item.classList.contains('lightbox-picture')) {
+          const img = item.querySelector('img');
+          altText = img ? img.alt : '';
+        } else if (item.classList.contains('lightbox-video')) {
+          altText = 'Video';
+          if (item.tagName === 'VIDEO') {
+            item.currentTime = 0;
+            item.play().catch(e => console.warn('Video autoplay failed:', e));
+          }
+        }
+        
+        if (lightboxCaption) {
+          lightboxCaption.textContent = altText;
+        }
+        
+        if (lightboxLoading) {
+          lightboxLoading.style.display = 'none';
+        }
+      }
+    }
+    
+    window.openLightbox = function(indexOrImageSrc) {
+      let targetIndex = -1;
+      
+      if (typeof indexOrImageSrc === 'number') {
+        targetIndex = indexOrImageSrc;
+      } else {
+        const galleryItems = document.querySelectorAll('.gallery-item:not(.gallery-item-clone)');
+        galleryItems.forEach((item) => {
+          const img = item.querySelector('img');
+          const itemImgSrc = img ? img.src : null;
+          const dataImage = item.getAttribute('data-image');
+          
+          if (itemImgSrc === indexOrImageSrc || dataImage === indexOrImageSrc) {
+            const lightboxIndex = item.getAttribute('data-lightbox-index');
+            if (lightboxIndex !== null) {
+              targetIndex = parseInt(lightboxIndex);
+            }
+          }
+        });
+      }
+      
+      if (targetIndex < 0) {
+        console.warn('Could not find lightbox item for index/imageSrc:', indexOrImageSrc);
+        return;
+      }
+      
+      currentLightboxIndex = targetIndex;
+      
+      const videos = lightboxImages ? lightboxImages.querySelectorAll('.lightbox-video') : [];
+      videos.forEach(video => {
+        if (video.tagName === 'VIDEO') {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+      
+      if (lightboxLoading) {
+        lightboxLoading.style.display = 'block';
+      }
+      
+      showLightboxItem(targetIndex);
+      
+      document.body.classList.add('lightbox-active');
+      lightbox.style.display = 'flex';
+      requestAnimationFrame(() => {
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Focus-Management: Setze Focus auf Close-Button
+        const lightboxCloseBtn = document.getElementById('lightbox-close');
+        if (lightboxCloseBtn) {
+          lightboxCloseBtn.focus();
+        }
+      });
+    };
+    
+    function nextImage() {
+      const items = getAllLightboxItems();
+      if (items.length === 0) return;
+      
+      if (currentLightboxIndex >= 0 && currentLightboxIndex < items.length - 1) {
+        const nextIndex = currentLightboxIndex + 1;
+        currentLightboxIndex = nextIndex;
+        showLightboxItem(nextIndex);
+      } else if (currentLightboxIndex === items.length - 1) {
+        currentLightboxIndex = 0;
+        showLightboxItem(0);
+      }
+    }
+    
+    function prevImage() {
+      const items = getAllLightboxItems();
+      if (items.length === 0) return;
+      
+      if (currentLightboxIndex > 0) {
+        const prevIndex = currentLightboxIndex - 1;
+        currentLightboxIndex = prevIndex;
+        showLightboxItem(prevIndex);
+      } else if (currentLightboxIndex === 0) {
+        const lastIndex = items.length - 1;
+        currentLightboxIndex = lastIndex;
+        showLightboxItem(lastIndex);
+      }
+    }
+    
+    function closeLightbox() {
+      const videos = lightboxImages ? lightboxImages.querySelectorAll('.lightbox-video') : [];
+      videos.forEach(video => {
+        if (video.tagName === 'VIDEO') {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+      
+      // Speichere das Element, das vor dem Öffnen der Lightbox den Focus hatte
+      const previousActiveElement = document.activeElement;
+      
+      hideAllLightboxItems();
+      lightbox.classList.remove('active');
+      lightbox.style.display = 'none';
+      document.body.style.overflow = '';
+      document.body.classList.remove('lightbox-active');
+      currentLightboxIndex = -1;
+      
+      // Focus-Management: Setze Focus zurück auf vorheriges Element
+      if (previousActiveElement && previousActiveElement !== document.body && previousActiveElement instanceof HTMLElement) {
+        previousActiveElement.focus();
+      }
+    }
+    
+    if (lightboxClose) {
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightboxClose.addEventListener('touchstart', closeLightbox, { passive: true });
+    }
+    
+    if (lightboxPrev) {
+      lightboxPrev.addEventListener('click', prevImage);
+    }
+    
+    if (lightboxNext) {
+      lightboxNext.addEventListener('click', nextImage);
+    }
+    
+    lightbox.addEventListener('click', function(e) {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+    
+    lightbox.addEventListener('touchstart', function(e) {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    }, { passive: true });
+    
+    document.addEventListener('keydown', function(e) {
+      if (lightbox.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          closeLightbox();
+        } else if (e.key === 'ArrowLeft') {
+          prevImage();
+        } else if (e.key === 'ArrowRight') {
+          nextImage();
+        }
+      }
+    });
+    
+    return true;
+  }
+  
+  function initGalleryItems() {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox || !window.openLightbox) {
+      return;
+    }
+    
+    const galleryWrappers = document.querySelectorAll('.gallery-slider-wrapper');
+    
+    galleryWrappers.forEach((wrapper) => {
+      wrapper.setAttribute('data-lightbox-initialized', 'true');
+      wrapper.removeEventListener('click', handleGalleryItemClick);
+      wrapper.addEventListener('click', handleGalleryItemClick);
+    });
+    
+    const galleryItems = document.querySelectorAll('.gallery-item:not(.gallery-item-clone)');
+    
+    galleryItems.forEach((item) => {
+      if (!item.hasAttribute('data-lightbox-listener')) {
+        item.setAttribute('data-lightbox-listener', 'true');
+        item.addEventListener('click', function(event) {
+          if (!window.openLightbox) {
+            console.warn('Lightbox: window.openLightbox ist nicht definiert');
+            return;
+          }
+          
+          const lightboxIndex = this.getAttribute('data-lightbox-index');
+          if (lightboxIndex !== null) {
+            const index = parseInt(lightboxIndex);
+            if (!isNaN(index) && index >= 0) {
+              window.openLightbox(index);
+              return;
+            }
+          }
+          
+          const img = this.querySelector('img');
+          const imageSrc = img ? img.src : this.getAttribute('data-image');
+          if (imageSrc) {
+            window.openLightbox(imageSrc);
+          }
+        });
+      }
+    });
+  }
+  
+  function handleGalleryItemClick(event) {
+    if (event && typeof event.preventDefault === 'function') {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    let galleryItem = event.target ? event.target.closest('.gallery-item:not(.gallery-item-clone)') : null;
+    
+    if (!galleryItem) {
+      galleryItem = event.target ? event.target.closest('.gallery-item') : null;
+    }
+    
+    if (!galleryItem) {
+      return;
+    }
+    
+    if (!window.openLightbox) {
+      console.warn('Lightbox: window.openLightbox ist nicht definiert');
+      return;
+    }
+    
+    const lightboxIndex = galleryItem.getAttribute('data-lightbox-index');
+    if (lightboxIndex !== null) {
+      const index = parseInt(lightboxIndex);
+      if (!isNaN(index) && index >= 0) {
+        window.openLightbox(index);
+        return;
+      }
+    }
+    
+    const img = galleryItem.querySelector('img');
+    const imageSrc = img ? img.src : galleryItem.getAttribute('data-image');
+    if (imageSrc) {
+      window.openLightbox(imageSrc);
+    }
+  }
+  
+  function initializeGalleryItemsWithDelay() {
+    let initAttempts = 0;
+    const maxAttempts = 50;
+    
+    function tryInit() {
+      initAttempts++;
+      
+      if (!window.openLightbox) {
+        if (initAttempts < maxAttempts) {
+          setTimeout(tryInit, 100);
+        } else {
+          console.warn('Lightbox: window.openLightbox wurde nicht innerhalb von 5 Sekunden initialisiert');
+        }
+        return;
+      }
+      
+      const wrappers = document.querySelectorAll('.gallery-slider-wrapper');
+      if (wrappers.length === 0) {
+        if (initAttempts < maxAttempts) {
+          setTimeout(tryInit, 100);
+        } else {
+          console.warn('Lightbox: Keine Gallery-Wrapper gefunden');
+        }
+        return;
+      }
+      
+      const lightbox = document.getElementById('lightbox');
+      if (!lightbox) {
+        if (initAttempts < maxAttempts) {
+          setTimeout(tryInit, 100);
+        } else {
+          console.warn('Lightbox: Lightbox-Element wurde nicht gefunden');
+        }
+        return;
+      }
+      
+      initGalleryItems();
+    }
+    
+    if (document.readyState === 'complete') {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(tryInit);
+      });
+    } else if (document.readyState === 'interactive') {
+      document.addEventListener('DOMContentLoaded', () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(tryInit);
+        });
+      });
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(tryInit);
+        });
+      });
+    }
+    
+    window.addEventListener('load', () => {
+      setTimeout(tryInit, 100);
+    }, { once: true });
+  }
+  
+  // Initialisiere Lightbox
+  const lightboxInitialized = initLightbox();
+  
+  // Initialisiere Gallery Items
+  initializeGalleryItemsWithDelay();
+</script>
+

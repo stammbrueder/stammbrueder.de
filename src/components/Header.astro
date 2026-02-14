@@ -1,0 +1,32 @@
+---
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { join, dirname } from 'path';
+import MobileMenu from './MobileMenu.astro';
+
+const currentPath = Astro.url.pathname;
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const logoPath = join(__dirname, '../../public/images/stammbrueder-logo.svg');
+const logoSvg = readFileSync(logoPath, 'utf-8');
+---
+
+<header class="header">
+  <nav class="nav container">
+    <a href="/" class="logo" aria-label="Stammbrüder - Zur Startseite">
+      <span set:html={logoSvg.replace('<svg', '<svg class="logo-img" aria-hidden="true"').replace(/<rect([^>]*)fill="#1E1E1E"([^>]*)>/g, '<rect$1fill="transparent"$2>').replace(/<rect([^>]*)fill="white"([^>]*)>/g, '<rect$1fill="transparent"$2>')}></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/ueber-uns" class={currentPath === '/ueber-uns' ? 'active' : ''}>Über uns</a></li>
+      <li><a href="/leistungen" class={currentPath === '/leistungen' || currentPath === '/massivholztische' || currentPath === '/camperausbau' || currentPath === '/cnc-fraesarbeiten' ? 'active' : ''}>Unser Handwerk</a></li>
+      <li><a href="/referenzen" class={currentPath === '/referenzen' || currentPath.startsWith('/referenzen/') ? 'active' : ''}>Unsere Werkstücke</a></li>
+      <li><a href="/kontakt" class={currentPath === '/kontakt' ? 'active' : ''}>Kontakt</a></li>
+    </ul>
+    <a href="/kontakt" class={`nav-contact-btn ${currentPath === '/kontakt' ? 'active' : ''}`}>Projekt anfragen</a>
+    <button class="mobile-menu-toggle" aria-label="Menü öffnen" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </nav>
+  <MobileMenu />
+</header>

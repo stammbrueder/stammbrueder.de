@@ -1,0 +1,203 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Card from '../components/Card.astro';
+import { getCollection } from 'astro:content';
+import { getImage } from '../utils/imageMap';
+import handwerkImage from '../assets/images/leistungen/handwerk-leistungen-individuelle-projekte.jpg';
+import ChatCircleLight from 'phosphor-astro/ChatCircleLight.astro';
+import RulerLight from 'phosphor-astro/RulerLight.astro';
+import CalculatorLight from 'phosphor-astro/CalculatorLight.astro';
+import PackageLight from 'phosphor-astro/PackageLight.astro';
+import HammerLight from 'phosphor-astro/HammerLight.astro';
+import CheckCircleLight from 'phosphor-astro/CheckCircleLight.astro';
+
+// Error Handling für Content Collections
+let allLeistungen = await getCollection('leistungen');
+
+// Sortiere Leistungen in gewünschter Reihenfolge: Camper, CNC, Massivholztische
+const leistungenOrder = ['camperausbau', 'cnc-fraesarbeiten', 'massivholztische'];
+const sortedLeistungen = allLeistungen.sort((a, b) => {
+  const indexA = leistungenOrder.indexOf(a.slug);
+  const indexB = leistungenOrder.indexOf(b.slug);
+  // Wenn slug nicht in der Liste ist, ans Ende sortieren
+  if (indexA === -1) return 1;
+  if (indexB === -1) return -1;
+  return indexA - indexB;
+});
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Unsere Leistungen",
+  "description": "Camperausbau und Massivholztische - Handgefertigt von den Stammbrüdern",
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": sortedLeistungen.map((leistung, index) => ({
+      "@type": "Service",
+      "position": index + 1,
+      "name": leistung.data.title,
+      "description": leistung.data.description,
+      "url": `https://stammbrueder.de/${leistung.slug}`
+    }))
+  }
+};
+---
+
+<BaseLayout
+  title="Unsere Leistungen Camper, CNC & Massivholztische"
+  description="Camperausbau, Massivholztische und CNC-Fräsarbeiten aus Leipzig – individuell geplant und präzise gefertigt."
+  ogImage="https://stammbrueder.de/images/projects/projects-overview.jpg"
+  ogUrl="https://stammbrueder.de/leistungen"
+  canonical="https://stammbrueder.de/leistungen"
+  structuredData={structuredData}
+  bodyClass="subpage"
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="page-header">
+      <div class="container">
+        <h1>Das bieten wir dir</h1>
+        <p class="page-subtitle">Camperausbau, CNC-Fräsarbeiten und Massivholztische – Handgefertigt von den Stammbrüdern in Leipzig</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="leistungen-grid">
+          {sortedLeistungen.map((leistung, index) => {
+            const imageSrc = getImage(leistung.data.images[0].src);
+            // Erste 2 Kacheln sind above the fold (direkt nach page-header sichtbar)
+            const loadingAttr = index < 2 ? 'eager' : 'lazy';
+            // Verwende cardDescription mit Fallback auf description
+            const cardDescription = leistung.data.cardDescription || leistung.data.description;
+            return (
+              <a href={`/${leistung.slug}`} class="project-card fade-in">
+                <Picture
+                  src={imageSrc}
+                  alt={leistung.data.images[0].alt}
+                  widths={[400, 800, 1200]}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  formats={['avif', 'webp', 'jpg']}
+                  loading={loadingAttr}
+                  quality={85}
+                />
+                <div class="project-card-content">
+                  <h2>{leistung.data.title}</h2>
+                  <p>{cardDescription}</p>
+                  <span class="card-link">Mehr erfahren →</span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <section class="tile-section">
+      <div class="container">
+        <div class="tile-row">
+          <div class="tile tile--content">
+            <h2>Deine Idee, unser Handwerk</h2>
+            <div class="tile-content">
+              <p>
+                Hast du eine Vision für ein einzigartiges Möbelstück, einen individuellen Camperausbau oder ein anderes Holzprojekt?
+                Wir freuen uns darauf, deine Ideen zu hören und gemeinsam mit dir ein maßgeschneidertes Konzept zu entwickeln.
+              </p>
+              <div class="cta-section fade-in">
+                <a href="/kontakt" class="btn btn--primary btn--large">Projekt anfragen</a>
+              </div>
+            </div>
+          </div>
+          <div class="tile tile--image">
+            <Picture
+              src={handwerkImage}
+              alt="Handwerkliche Holzwerkstatt für individuelle Projekte. Camperausbau, Massivholztische und CNC-Fräsarbeiten."
+              widths={[400, 800, 1200]}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+              formats={['avif', 'webp', 'jpg']}
+              loading="lazy"
+              quality={85}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="content-section fade-in">
+          <h2>Projektablauf</h2>
+          <ul class="process-list">
+            <li>
+              <ChatCircleLight size={18} />
+              <strong>1. Erstberatung und Ideenfindung</strong>
+              <p>Gemeinsam entwickeln wir deine Vision und besprechen deine Wünsche und Anforderungen.</p>
+            </li>
+            <li>
+              <RulerLight size={18} />
+              <strong>2. Maßaufnahme und Planung</strong>
+              <p>Wir nehmen alle notwendigen Maße auf und erstellen eine detaillierte Planung im CAD-Programm.</p>
+            </li>
+            <li>
+              <CalculatorLight size={18} />
+              <strong>3. Kostenvoranschlag</strong>
+              <p>Du erhältst einen transparenten Kostenvoranschlag für dein Projekt.</p>
+            </li>
+            <li>
+              <PackageLight size={18} />
+              <strong>4. Materialauswahl</strong>
+              <p>Gemeinsam wählen wir die passenden Materialien für dein Projekt aus.</p>
+            </li>
+            <li>
+              <HammerLight size={18} />
+              <strong>5. Fertigung</strong>
+              <p>Dein Projekt wird mit Präzision und Liebe zum Detail in unserer Werkstatt gefertigt.</p>
+            </li>
+            <li>
+              <CheckCircleLight size={18} />
+              <strong>6. Montage und Übergabe</strong>
+              <p>Wir montieren dein Projekt vor Ort und übergeben es dir fertiggestellt.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="tile-section">
+      <div class="container">
+        <div class="tile-row">
+          <div class="tile tile--content">
+            <h2>Was du erwarten kannst</h2>
+            <div class="tile-content">
+              <ul class="features-list">
+                <li><strong>Unverbindliche Beratung</strong> - Wir beraten dich gerne und unverbindlich zu deinem Projekt.</li>
+                <li><strong>Individuelle Planung</strong> - Jedes Projekt wird individuell geplant und auf deine Bedürfnisse zugeschnitten.</li>
+                <li><strong>Hochwertige Materialien</strong> - Wir verwenden ausschließlich hochwertige Materialien für langlebige Ergebnisse.</li>
+                <li><strong>Präzise Ausführung</strong> - Jedes Detail wird mit Sorgfalt und Präzision umgesetzt.</li>
+                <li><strong>Persönlicher Service</strong> - Du hast einen direkten Ansprechpartner während des gesamten Projekts.</li>
+              </ul>
+              <p class="optional-note">
+                <em>Optional: Mit zusammenbauen & weiterverarbeiten</em> - Du kannst gerne bei der Fertigung dabei sein und mithelfen.
+              </p>
+            </div>
+          </div>
+          <div class="tile tile--image">
+            <Picture
+              src={getImage('/images/leistungen/massivholztische/ahorntisch-massiv-leipzig.jpg')}
+              alt="Handgefertigter Ahorntisch aus Massivholz mit natürlicher Maserung. Individuell geplant und maßgefertigt."
+              widths={[400, 800, 1200]}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+              formats={['avif', 'webp', 'jpg']}
+              loading="lazy"
+              quality={85}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+

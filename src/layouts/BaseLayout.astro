@@ -1,0 +1,84 @@
+---
+import { SEO } from 'astro-seo';
+import Footer from '../components/Footer.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  keywords?: string | string[];
+  ogImage?: string;
+  ogUrl?: string;
+  canonical?: string;
+  structuredData?: object;
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description,
+  keywords = "Holzwerkstatt, Leipzig, Tischler, Camperausbau, Maßanfertigung, Eichentisch, Handwerk",
+  ogImage,
+  ogUrl = Astro.url.href,
+  canonical = Astro.url.href,
+  structuredData,
+  bodyClass = ""
+} = Astro.props;
+
+// Convert keywords to array if string
+const keywordsArray = Array.isArray(keywords) ? keywords : keywords.split(', ').map(k => k.trim());
+
+// Ensure ogImage is always set for astro-seo validation
+const defaultOgImage = "https://stammbrueder.de/images/hero/stammbrueder-hero.jpg";
+const finalOgImage = ogImage || defaultOgImage;
+
+// Note: Style switching is handled client-side via JavaScript
+// because Astro.url.searchParams doesn't work reliably in all contexts
+---
+
+<!DOCTYPE html>
+<html lang="de" data-theme="default">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <SEO
+    title={title}
+    description={description}
+    canonical={canonical}
+    keywords={keywordsArray}
+    openGraph={{
+      basic: {
+        title: title,
+        type: 'website',
+        image: finalOgImage,
+        url: ogUrl,
+      },
+      optional: {
+        description: description,
+        siteName: 'Stammbrüder',
+      },
+    }}
+    twitter={{
+      card: 'summary_large_image',
+      title: title,
+      description: description,
+      image: finalOgImage,
+    }}
+    jsonLd={structuredData}
+  />
+
+  <meta name="author" content="Stammbrüder">
+  <meta name="robots" content="index, follow">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- Load CSS synchronously to prevent FOUC -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class={bodyClass}>
+  <slot />
+  <Footer />
+  <script src="/js/main.js"></script>
+</body>
+</html>

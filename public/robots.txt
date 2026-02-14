@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://stammbrueder.de/sitemap-index.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Block common bot traps
+Disallow: /*.json$
+# Allow sitemap files
+Allow: /sitemap*.xml
+Disallow: /search?
+Disallow: /?*utm_*
+Disallow: /?*ref=*

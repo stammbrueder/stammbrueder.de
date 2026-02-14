@@ -1,0 +1,15 @@
+---
+// ErrorBoundary Komponente für robuste Fehlerbehandlung
+// In Astro gibt es keine echte Error-Boundary wie in React,
+// aber diese Komponente kann für Fallback-Inhalte verwendet werden
+
+export interface Props {
+  fallback?: string;
+  children?: any;
+}
+
+const { fallback = "Es ist ein Fehler aufgetreten. Bitte versuche es später erneut." } = Astro.props;
+---
+
+<slot />
+

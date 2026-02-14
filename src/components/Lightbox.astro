@@ -1,0 +1,108 @@
+---
+import { Picture } from 'astro:assets';
+import { getImage } from '../utils/imageMap';
+
+export interface Props {
+  items: Array<{
+    type: 'image' | 'video';
+    src: string;
+    alt: string;
+    poster?: string;
+  }>;
+  lightboxWidths?: number[];
+  lightboxSizes?: string;
+  formats?: string[];
+  quality?: number;
+}
+
+const {
+  items,
+  lightboxWidths = [400, 800, 1200],
+  lightboxSizes = "(max-width: 1333px) 90vw, 1200px",
+  formats = ['avif', 'webp', 'jpg'],
+  quality = 90
+} = Astro.props;
+---
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildergalerie" style="display: none;">
+  <div class="lightbox-content">
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Vorheriges Bild">
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="currentColor">
+        <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/>
+      </svg>
+    </button>
+    
+    {/* Alle Bilder werden server-seitig gerendert (versteckt) */}
+    <div class="lightbox-images" id="lightbox-images">
+      {items.map((item, index) => {
+        if (item.type === 'image') {
+          let imageSrc;
+          try {
+            imageSrc = getImage(item.src);
+          } catch (error) {
+            console.error(`Lightbox: Bild nicht gefunden: ${item.src}`, error);
+            return null;
+          }
+          if (!imageSrc) return null;
+          
+          return (
+            <picture 
+              id={`lightbox-image-${index}`}
+              class="lightbox-picture"
+              data-lightbox-index={index}
+              data-type="image"
+              style="display: none;"
+            >
+              <Picture 
+                src={imageSrc}
+                alt={item.alt}
+                widths={lightboxWidths}
+                sizes={lightboxSizes}
+                formats={formats}
+                loading="eager"
+                quality={quality}
+              />
+            </picture>
+          );
+        } else if (item.type === 'video') {
+          return (
+            <video 
+              id={`lightbox-video-${index}`}
+              class="lightbox-video"
+              data-lightbox-index={index}
+              data-type="video"
+              data-video-src={item.src}
+              controls
+              autoplay
+              preload="metadata"
+              style="display: none;"
+            >
+              <source src={item.src} type="video/mp4" />
+              Dein Browser unterstützt das Video-Element nicht.
+            </video>
+          );
+        }
+        return null;
+      })}
+    </div>
+    
+    <div class="lightbox-loading" id="lightbox-loading" style="display: none;">
+      <div class="lightbox-spinner"></div>
+    </div>
+    
+    <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Nächstes Bild">
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="currentColor">
+        <path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/>
+      </svg>
+    </button>
+    
+    <button class="lightbox-close" id="lightbox-close" aria-label="Lightbox schließen">
+      <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
+        <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+      </svg>
+    </button>
+    
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
+</div>
+

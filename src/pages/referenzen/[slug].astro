@@ -1,0 +1,249 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import GallerySlider from '../../components/GallerySlider.astro';
+import { getCollection } from 'astro:content';
+import { getImage } from '../../utils/imageMap';
+
+export async function getStaticPaths() {
+  let projects = [];
+  
+  try {
+    projects = await getCollection('referenzen');
+  } catch (error) {
+    console.error('Fehler beim Laden der Referenzen in getStaticPaths:', error);
+    return [];
+  }
+  
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+
+// Kombiniertes Array aus Bildern und Videos erstellen
+// Für couchtisch-bongossi: Video zwischen Bild 2 und Bild 4
+const galleryItems: Array<{type: 'image' | 'video', data: any, index: number}> = [];
+let itemIndex = 0;
+
+// Sammle alle Poster-URLs von Videos, um Duplikate zu vermeiden
+const videoPosterUrls = new Set<string>();
+if (project.data.videos) {
+  project.data.videos.forEach((video) => {
+    if (video.poster) {
+      videoPosterUrls.add(video.poster);
+    }
+  });
+}
+
+project.data.images.forEach((image, imgIndex) => {
+  // Überspringe Bilder, die als Video-Poster verwendet werden (um Duplikate zu vermeiden)
+  const isPoster = videoPosterUrls.has(image.src);
+  
+  if (!isPoster) {
+    galleryItems.push({
+      type: 'image',
+      data: image,
+      index: itemIndex++
+    });
+  }
+  
+  // Für couchtisch-bongossi: Video nach Bild 2 (Index 1) einfügen
+  // Auch wenn Bild 2 als Poster verwendet wird, fügen wir das Video nach der Position von Bild 2 ein
+  if (project.slug === 'couchtisch-bongossi' && imgIndex === 1 && project.data.videos && project.data.videos.length > 0) {
+    project.data.videos.forEach((video) => {
+      galleryItems.push({
+        type: 'video',
+        data: video,
+        index: itemIndex++
+      });
+    });
+  }
+});
+
+// Für alle anderen Projekte: Videos am Ende hinzufügen
+if (project.slug !== 'couchtisch-bongossi' && project.data.videos && project.data.videos.length > 0) {
+  project.data.videos.forEach((video) => {
+    galleryItems.push({
+      type: 'video',
+      data: video,
+      index: itemIndex++
+    });
+  });
+}
+
+const totalGalleryItems = galleryItems.length;
+
+// Konvertiere galleryItems in das Format für GallerySlider
+const sliderItems = galleryItems.map(item => ({
+  type: item.type,
+  src: item.data.src,
+  alt: item.data.alt,
+  poster: item.data.poster
+}));
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": project.data.title,
+  "description": project.data.description,
+  "brand": {
+    "@type": "Brand",
+    "name": "Stammbrüder"
+  },
+  "manufacturer": {
+    "@type": "Organization",
+    "name": "Stammbrüder"
+  },
+  "material": project.data.material,
+  "category": project.data.category,
+  "image": project.data.images.map(img => `https://stammbrueder.de${img.src}`)
+};
+---
+
+<BaseLayout
+  title={project.slug === 'ahorn-esstisch'
+    ? 'Ahorn Esstisch – Massivholztisch'
+    : project.slug === 'massivholz-schreibtisch-buche-hohenverstellbar'
+    ? 'Ergonomischer Schreibtisch aus historischem Buchenholz – Stammbrüder'
+    : project.slug === 'campingbus-blue'
+    ? 'Campingbus Umbau – Familiencamper Mercedes Sprinter'
+    : project.slug === 'couchtisch-bongossi'
+    ? 'Couchtisch Bongossi – Unikat aus Sri Lanka'
+    : project.slug === 'eichenregal-raumtrenner'
+    ? 'Eichenregal Raumtrenner – Maßanfertigung'
+    : project.slug === 'eichenregal-xxl'
+    ? 'Eichenregal XXL – Großformatiges Regalsystem'
+    : project.slug === 'heckauszug-campingbox-vw-t7'
+    ? 'Heckauszug VW T7 – Campingbox Modell Locke aus Leipzig'
+    : project.slug === 'kardiermaschine-cnc-fertigung'
+    ? 'Kardiermaschine aus Holz – Trommelkarde'
+    : project.slug === 'sitzbuehne-coworkingspace'
+    ? 'Sitzbühne – Sonderanfertigung für Coworkingspace'
+    : project.slug === 'van-camper-zubehoer'
+    ? 'Van- & Camper-Zubehör – Maßanfertigungen'
+    : `${project.data.title} – Stammbrüder Referenz`}
+  description={project.slug === 'ahorn-esstisch'
+    ? 'Massiver Ahorn-Esstisch mit Glas und Metall – elegantes Unikat aus unserer Werkstatt.'
+    : project.slug === 'massivholz-schreibtisch-buche-hohenverstellbar'
+    ? 'Massivholz Schreibtisch aus Buche mit Flexispot E7 Gestell – höhenverstellbar und ergonomisch.'
+    : project.slug === 'campingbus-blue'
+    ? 'Camperausbau für eine fünfköpfige Familie – mit Hubbett, Küche und cleverer Raumaufteilung.'
+    : project.slug === 'couchtisch-bongossi'
+    ? 'Couchtisch aus Bongossi (Lophira alata) aus Sri Lanka mit schwarzem Stahlgestell – warm, natürlich und einzigartig.'
+    : project.slug === 'eichenregal-raumtrenner'
+    ? 'Raumtrenner aus Eiche, passgenau geplant und gefertigt für optimale Raumnutzung.'
+    : project.slug === 'eichenregal-xxl'
+    ? 'Regalsystem aus Eiche mit vielseitigen Fächern – ideal für Wohn- oder Arbeitsräume.'
+    : project.slug === 'heckauszug-campingbox-vw-t7'
+    ? 'Heckauszug für VW T7 (Modell: Locke) mit Bett, Auszug 154cm, Fahrradtransport und robusten Materialien – perfekt für Camping und Outdoor.'
+    : project.slug === 'kardiermaschine-cnc-fertigung'
+    ? 'Handgefertigte Trommelkarde aus Holz – robust und ideal zur Faserverarbeitung.'
+    : project.slug === 'sitzbuehne-coworkingspace'
+    ? 'Modulare Sitzbühne mit Stauraum – ideal für Workshops und Veranstaltungen.'
+    : project.slug === 'van-camper-zubehoer'
+    ? 'Zubehör für Vans: Trittstufen, Regale und Arbeitsplatten – passgenau gefertigt.'
+    : `${project.data.title} – ${project.data.description}. Handgefertigt von den Stammbrüdern in Leipzig.`}
+  ogImage={`https://stammbrueder.de${project.data.images[0].src}`}
+  ogUrl={`https://stammbrueder.de/referenzen/${project.slug}`}
+  canonical={`https://stammbrueder.de/referenzen/${project.slug}`}
+  structuredData={structuredData}
+  bodyClass="project-page"
+>
+  <Header />
+  
+  <main id="main-content" class="main-content">
+    <div class="container">
+      <header class="project-header">
+        <div class="project-header-content">
+          <h1>{project.data.title}</h1>
+          <p class="page-subtitle">{project.data.description}</p>
+        </div>
+        
+        <GallerySlider items={sliderItems} />
+      </header>
+
+      <div class="project-details">
+        <div class="project-description">
+          <div class={project.slug === 'kardiermaschine-cnc-fertigung' ? 'hide-besonderheiten' : ''}>
+            <Content />
+          </div>
+        </div>
+
+        {(project.data.specs || project.data.customer) && (
+          <div class="project-specs">
+            <h3>Daten & Fakten</h3>
+            {project.data.specs && Object.entries(project.data.specs).map(([key, value]) => {
+              // Übersetzung der Spec-Labels ins Deutsche
+              const labelTranslations = {
+                'material': 'Material',
+                'dimensions': 'Abmessungen',
+                'weight': 'Gewicht',
+                'finish': 'Oberfläche',
+                'size': 'Größe',
+                'thickness': 'Dicke',
+                'color': 'Farbe',
+                'wood': 'Holz',
+                'treatment': 'Behandlung',
+                'fahrzeug': 'Fahrzeug',
+                'sitzplaetze': 'Sitzplätze',
+                'schlafplaetze': 'Schlafplätze',
+                'wasser': 'Wasser',
+                'energie': 'Energie',
+                'besonderheiten': 'Besonderheiten',
+                'preis': 'Preis',
+                'hoehe': 'Höhe',
+                'tragkraft': 'Tragkraft',
+                'grundriss': 'Grundriss'
+              };
+              const label = labelTranslations[key.toLowerCase()] || key.charAt(0).toUpperCase() + key.slice(1);
+              
+              // Spezielle Behandlung für Preis: E-Mail-Link erstellen
+              const isPreis = key.toLowerCase() === 'preis';
+              const emailSubject = encodeURIComponent(`Kaufinteresse an ${project.data.title}`);
+              const emailHref = `mailto:hallo@stammbrueder.de?subject=${emailSubject}`;
+              
+              // Spezielle Behandlung für Grundriss: Link zu Grundriss-Seite erstellen
+              const isGrundriss = key.toLowerCase() === 'grundriss';
+              const grundrissHref = '/camper-grundrisse/kastenwagen-blue';
+              
+              return (
+                <div class="spec-item">
+                  <span class="spec-label">{label}</span>
+                  <span class="spec-value">
+                    {isPreis ? (
+                      <a href={emailHref}>{value}</a>
+                    ) : isGrundriss ? (
+                      <a href={grundrissHref}>{value}</a>
+                    ) : (
+                      value
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+            {project.data.customer && (
+              <div class="spec-item">
+                <span class="spec-label">Kunde</span>
+                <span class="spec-value">
+                  {project.data.customer.url ? (
+                    <a href={project.data.customer.url} target="_blank" rel="noopener noreferrer">
+                      {project.data.customer.name}
+                    </a>
+                  ) : (
+                    project.data.customer.name
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+

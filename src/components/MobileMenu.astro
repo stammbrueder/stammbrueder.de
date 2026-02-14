@@ -1,0 +1,107 @@
+---
+// MobileMenu Komponente mit client:load für partielle Hydration
+// Migriert von public/js/main.js initNavigation()
+---
+
+<script client:load>
+  // Mobile Navigation - migriert von main.js
+  function initMobileNavigation() {
+    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (!mobileToggle || !navLinks) return;
+    
+    let previousActiveElement = null;
+    
+    mobileToggle.addEventListener('click', function() {
+      const isOpen = navLinks.classList.contains('nav-open');
+      
+      if (!isOpen) {
+        // Menü öffnen: Speichere aktuelles Focus-Element
+        previousActiveElement = document.activeElement;
+      }
+      
+      navLinks.classList.toggle('nav-open');
+      mobileToggle.classList.toggle('nav-open');
+      
+      // Update ARIA attributes
+      const newIsOpen = navLinks.classList.contains('nav-open');
+      mobileToggle.setAttribute('aria-expanded', String(newIsOpen));
+      mobileToggle.setAttribute('aria-label', newIsOpen ? 'Menü schließen' : 'Menü öffnen');
+      
+      // Scrollen im Hintergrund verhindern/erlauben
+      if (newIsOpen) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        
+        // Focus-Management: Setze Focus auf ersten Link im Menü
+        const firstLink = navLinks.querySelector('a');
+        if (firstLink) {
+          firstLink.focus();
+        }
+      } else {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        
+        // Focus-Management: Setze Focus zurück auf Toggle-Button
+        if (mobileToggle) {
+          mobileToggle.focus();
+        }
+      }
+    });
+    
+    // Close mobile menu when clicking on a link
+    navLinks.addEventListener('click', function(e) {
+      if (e.target && e.target.tagName === 'A') {
+        navLinks.classList.remove('nav-open');
+        mobileToggle.classList.remove('nav-open');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+        mobileToggle.setAttribute('aria-label', 'Menü öffnen');
+        
+        // Scrollen wieder erlauben
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+      }
+    });
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+      if (e.target && !navLinks.contains(e.target) && !mobileToggle.contains(e.target)) {
+        navLinks.classList.remove('nav-open');
+        mobileToggle.classList.remove('nav-open');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+        mobileToggle.setAttribute('aria-label', 'Menü öffnen');
+        
+        // Scrollen wieder erlauben
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+      }
+    });
+    
+    // ESC-Taste zum Schließen
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && navLinks.classList.contains('nav-open')) {
+        navLinks.classList.remove('nav-open');
+        mobileToggle.classList.remove('nav-open');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+        mobileToggle.setAttribute('aria-label', 'Menü öffnen');
+        
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+      }
+    });
+  }
+  
+  // Initialisiere wenn DOM bereit ist
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileNavigation);
+  } else {
+    initMobileNavigation();
+  }
+</script>
+

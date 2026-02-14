@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "mainEntity": {
+    "@type": "Organization",
+    "name": "Stammbrüder",
+    "email": "hallo@stammbrueder.de",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Leipzig",
+      "addressCountry": "DE"
+    },
+    "sameAs": [
+      "https://www.instagram.com/stammbrueder"
+    ]
+  }
+};
+---
+
+<BaseLayout
+  title="Kontakt – Holzwerkstatt Leipzig"
+  description="Kontakt für Camperausbau, Massivholztische und individuelle Holzprojekte – persönliche Beratung inklusive."
+  ogImage="https://stammbrueder.de/images/hero/stammbrueder-hero.jpg"
+  ogUrl="https://stammbrueder.de/kontakt"
+  canonical="https://stammbrueder.de/kontakt"
+  structuredData={structuredData}
+  bodyClass="subpage"
+>
+  <Header />
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Kontakt</h1>
+        <p class="page-subtitle">Schreib uns für dein individuelles Holzprojekt</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="content-grid">
+          <div class="content-main">
+            <h2 class="section__title">Deine Idee, unser Handwerk</h2>
+            <p>
+              Hast du eine Vision für ein einzigartiges Möbelstück, einen individuellen Camperausbau oder ein anderes Holzprojekt? Wir freuen uns darauf, deine Ideen zu hören und gemeinsam mit dir ein maßgeschneidertes Konzept zu entwickeln.
+            </p>
+
+
+             <div class="info-cards">
+              <div class="info-card">
+                <h3>Projektablauf</h3>
+                <ol>
+                  <li>Erstberatung und Ideenfindung</li>
+                  <li>Maßaufnahme und Planung</li>
+                  <li>Kostenvoranschlag</li>
+                  <li>Materialauswahl</li>
+                  <li>Fertigung</li>
+                  <li>Montage und Übergabe</li>
+                </ol>
+              </div>
+
+             <div class="info-card">
+              <h3>Was du erwarten kannst</h3>
+              <ul>
+                <li>Unverbindliche Beratung</li>
+                <li>Individuelle Planung</li>
+                <li>Hochwertige Materialien</li>
+                <li>Präzise Ausführung</li>
+                <li>Persönlicher Service</li>
+                <li>Optional: Mit zusammenbauen & weiterverarbeiten</li>
+              </ul>
+              </div>
+
+            </div>
+
+            <p>
+              Kontaktiere uns unverbindlich per E-Mail oder Telefon. Wir beraten dich gerne und erstellen dir ein passendes Angebot.
+            </p>
+
+            <div class="cta-section">
+              <a href="mailto:hallo@stammbrueder.de" class="btn btn--primary">Projekt anfragen</a>
+            </div>
+
+          </div>
+
+          <div class="content-sidebar">
+            <div class="contact-info">
+              <h3>Kontakt</h3>
+              <p><strong>E-Mail:</strong> <a href="mailto:hallo@stammbrueder.de">hallo@stammbrueder.de</a><br>
+            </div>
+            <div class="contact-info">
+             <h3>Werkstatt</h3>
+              <p>Gräfestraße 26<br>04129 Leipzig</p>
+            </div>
+            <div class="contact-info">
+              <h3>Social Media</h3>
+              <p>
+                Folge uns auf
+                <a href="https://www.instagram.com/stammbrueder" target="_blank" rel="noopener">Instagram</a>
+                für aktuelle Projekte und Einblicke in unsere Werkstatt.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

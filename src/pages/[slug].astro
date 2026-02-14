@@ -1,0 +1,455 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import GallerySlider from '../components/GallerySlider.astro';
+import { getCollection } from 'astro:content';
+import { getImage } from '../utils/imageMap';
+import { grundrisse } from '../data/grundrisse';
+
+export async function getStaticPaths() {
+  // Erlaube nur die drei Leistungs-Slugs
+  const allowedSlugs = ['massivholztische', 'camperausbau', 'cnc-fraesarbeiten'];
+  let leistungen = [];
+
+  try {
+    leistungen = await getCollection('leistungen');
+  } catch (error) {
+    console.error('Fehler beim Laden der Leistungen in getStaticPaths:', error);
+    return [];
+  }
+
+  return leistungen
+    .filter((leistung) => allowedSlugs.includes(leistung.slug))
+    .map((leistung) => ({
+      params: { slug: leistung.slug },
+      props: { leistung },
+    }));
+}
+
+const { leistung } = Astro.props;
+const { Content, headings } = await leistung.render();
+
+// Konvertiere Bilder in das Format für GallerySlider
+const galleryItems = leistung.data.images.map(image => ({
+  type: 'image' as const,
+  src: image.src,
+  alt: image.alt
+}));
+
+// Funktion zum Parsen des Markdown-Contents in Sections
+function parseMarkdownSections(
+  markdownContent: string,
+  images: typeof leistung.data.images,
+  videos: typeof leistung.data.videos,
+  frontmatterSections: typeof leistung.data.sections
+) {
+  const sections: Array<{
+    title: string;
+    content: string;
+    image?: string;
+    imageAlt?: string;
+    isVideo?: boolean;
+  }> = [];
+
+  // Finde alle H2-Überschriften mit ihren Positionen
+  const h2Regex = /^## (.+)$/gm;
+  const matches: Array<{ title: string; startIndex: number }> = [];
+  let match;
+
+  while ((match = h2Regex.exec(markdownContent)) !== null) {
+    matches.push({
+      title: match[1].trim(),
+      startIndex: match.index
+    });
+  }
+
+  // Wenn keine H2-Überschriften gefunden wurden, gibt es keine Sections
+  if (matches.length === 0) {
+    return sections;
+  }
+
+  // Verarbeite jeden Abschnitt
+  for (let i = 0; i < matches.length; i++) {
+    const currentMatch = matches[i];
+    const nextMatch = matches[i + 1];
+
+    // Extrahiere den Content zwischen dieser H2 und der nächsten (oder Ende)
+    const contentStart = currentMatch.startIndex + currentMatch.title.length + 4; // +4 für "## " und Newline
+    const contentEnd = nextMatch ? nextMatch.startIndex : markdownContent.length;
+    const content = markdownContent.substring(contentStart, contentEnd).trim();
+
+    // Konvertiere Markdown zu HTML (sichere Konvertierung)
+    // Escaped HTML-Entities und konvertiert nur erlaubte Markdown-Syntax
+    function escapeHtml(text: string): string {
+      const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, (m) => map[m]);
+    }
+
+    // Sichere Markdown-Konvertierung: Escaped HTML zuerst, dann Markdown
+    let htmlContent = escapeHtml(content)
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // Bestimme Bild/Video basierend auf Reihenfolge (index-basiert)
+    const sectionIndex = sections.length;
+    let image: string | undefined;
+    let imageAlt: string | undefined;
+    let isVideo = false;
+
+    // 1. Prüfe Frontmatter-Definition (index-basiert, höchste Priorität)
+    if (frontmatterSections && frontmatterSections.length > sectionIndex) {
+      const frontmatterSection = frontmatterSections[sectionIndex];
+      if (frontmatterSection.isVideo) {
+        isVideo = true;
+      } else if (frontmatterSection.image) {
+        image = frontmatterSection.image.src;
+        imageAlt = frontmatterSection.image.alt;
+      }
+    }
+
+    // 2. Fallback: Reihenfolge-basierte Zuordnung (nur wenn kein Frontmatter vorhanden)
+    if (!image && !isVideo && images && images.length > sectionIndex) {
+      image = images[sectionIndex].src;
+      imageAlt = images[sectionIndex].alt;
+    } else if (!image && !isVideo && images && images.length > 0) {
+      // 3. Fallback: Erstes Bild
+      image = images[0].src;
+      imageAlt = images[0].alt;
+    }
+
+    sections.push({
+      title: currentMatch.title,
+      content: htmlContent,
+      image,
+      imageAlt,
+      isVideo
+    });
+  }
+
+  return sections;
+}
+
+// Extrahiere Einleitungstext (vor dem ersten H2)
+function extractIntroText(markdownContent: string): string {
+  const h2Regex = /^## /m;
+  const match = markdownContent.search(h2Regex);
+
+  if (match === -1) {
+    // Kein H2 gefunden, gesamter Content ist Einleitung
+    return markdownContent.trim();
+  }
+
+  return markdownContent.substring(0, match).trim();
+}
+
+// Parse Sections aus Markdown
+const markdownContent = leistung.body;
+const sections = parseMarkdownSections(
+  markdownContent,
+  leistung.data.images,
+  leistung.data.videos || [],
+  leistung.data.sections
+);
+const introText = extractIntroText(markdownContent);
+
+// Get related projects
+let allProjects = await getCollection('referenzen')
+
+const relatedProjects = allProjects.filter(
+  project => project.data.category === leistung.data.relatedCategory
+);
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": leistung.data.title,
+  "description": leistung.data.description,
+  "provider": {
+    "@type": "Organization",
+    "name": "Stammbrüder"
+  },
+  "serviceType": leistung.data.title,
+  "image": leistung.data.images.map(img => `https://stammbrueder.de${img.src}`)
+};
+---
+
+<BaseLayout
+  title={leistung.slug === 'camperausbau'
+    ? 'Camperausbau Leipzig – Individueller Van-Ausbau'
+    : leistung.slug === 'cnc-fraesarbeiten'
+    ? 'CNC-Fräsarbeiten Leipzig – Präzise Holzbearbeitung'
+    : leistung.slug === 'massivholztische'
+    ? 'Massivholztische Leipzig – Maßanfertigungen aus Holz'
+    : `${leistung.data.title} – Stammbrüder Leistung`}
+  description={leistung.slug === 'camperausbau'
+    ? 'Individueller Camperausbau in Leipzig – maßgeschneiderte Lösungen für Vanlife, Reisen und Alltag.'
+    : leistung.slug === 'cnc-fraesarbeiten'
+    ? 'CNC Fräsen für Massivholz, MDF und Sperrholz – ideal für Prototypen, Einzelteile und kleine Serien.'
+    : leistung.slug === 'massivholztische'
+    ? 'Handgefertigte Massivholztische aus Leipzig – individuell geplant und hochwertig verarbeitet.'
+    : `${leistung.data.title} – ${leistung.data.description}. Handgefertigt von den Stammbrüdern in Leipzig.`}
+  ogImage={`https://stammbrueder.de${leistung.data.images[0].src}`}
+  ogUrl={`https://stammbrueder.de/${leistung.slug}`}
+  canonical={`https://stammbrueder.de/${leistung.slug}`}
+  structuredData={structuredData}
+  bodyClass="project-page"
+>
+  <Header />
+
+  <main id="main-content" class="main-content">
+    {/* Hero Section */}
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-content">
+          <h1>{leistung.data.heroTitle || leistung.data.title}</h1>
+          <p class="hero-subtitle">{leistung.data.heroSubtitle || leistung.data.description}</p>
+        </div>
+
+        <GallerySlider items={galleryItems} />
+      </div>
+    </section>
+
+    {/* Einleitungstext */}
+    {introText && (
+      <section class="section">
+        <div class="container">
+          <div class="content-section fade-in">
+            <div class="lead-text" set:html={(() => {
+              // Sichere Markdown-Konvertierung mit HTML-Escaping
+              function escapeHtml(text: string): string {
+                const map: Record<string, string> = {
+                  '&': '&amp;',
+                  '<': '&lt;',
+                  '>': '&gt;',
+                  '"': '&quot;',
+                  "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, (m) => map[m]);
+              }
+
+              return escapeHtml(introText)
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>');
+            })()}></div>
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* Bild-Text-Wechsel Sections */}
+    {sections.map((section, index) => {
+      const isEven = index % 2 === 0;
+
+      return (
+        <section class={`tile-section ${isEven ? 'tile-section--reverse' : ''}`}>
+          <div class="container">
+            <div class="tile-row">
+              <div class="tile tile--content">
+                <h2>{section.title}</h2>
+                <div class="tile-content" set:html={section.content}></div>
+              </div>
+              <div class="tile tile--image">
+                {section.isVideo && leistung.data.videos && leistung.data.videos.length > 0 ? (
+                  <div class="video-wrapper">
+                    {leistung.data.videos.map((video, videoIndex) => {
+                      // Video-Zuordnung basierend auf Titel oder Reihenfolge
+                      const shouldShowVideo =
+                        (section.title === 'Zusammenbauen' && leistung.slug === 'camperausbau') ||
+                        (section.title === 'Schleifen & Ölen' && leistung.slug === 'massivholztische') ||
+                        (sections.filter(s => s.isVideo).indexOf(section) === videoIndex);
+
+                      if (shouldShowVideo) {
+                        return (
+                          <video muted autoplay loop playsinline>
+                            <source src={video.src} type="video/mp4">
+                            Dein Browser unterstützt das Video-Element nicht.
+                          </video>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                ) : section.image ? (
+                  (() => {
+                    const sectionImageSrc = getImage(section.image);
+                    return (
+                      <Picture
+                        src={sectionImageSrc}
+                        alt={section.imageAlt || section.title}
+                        widths={[400, 800, 1200]}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                        formats={['avif', 'webp', 'jpg']}
+                        loading="lazy"
+                        quality={85}
+                      />
+                    );
+                  })()
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    })}
+
+    {/* Specs & Customer Section */}
+    {(leistung.data.specs || leistung.data.customer) && (
+      <section class="section">
+        <div class="container">
+          <div class="project-specs">
+            <h3>Daten & Fakten</h3>
+            {leistung.data.specs && Object.entries(leistung.data.specs).map(([key, value]) => {
+              // Übersetzung der Spec-Labels ins Deutsche
+              const labelTranslations = {
+                'material': 'Material',
+                'dimensions': 'Abmessungen',
+                'weight': 'Gewicht',
+                'finish': 'Oberfläche',
+                'size': 'Größe',
+                'thickness': 'Dicke',
+                'color': 'Farbe',
+                'wood': 'Holz',
+                'treatment': 'Behandlung'
+              };
+              const label = labelTranslations[key.toLowerCase()] || key.charAt(0).toUpperCase() + key.slice(1);
+
+              return (
+                <div class="spec-item">
+                  <span class="spec-label">{label}</span>
+                  <span class="spec-value">{value}</span>
+                </div>
+              );
+            })}
+            {leistung.data.customer && (
+              <div class="spec-item">
+                <span class="spec-label">Kunde</span>
+                <span class="spec-value">
+                  {leistung.data.customer.url ? (
+                    <a href={leistung.data.customer.url} target="_blank" rel="noopener noreferrer">
+                      {leistung.data.customer.name}
+                    </a>
+                  ) : (
+                    leistung.data.customer.name
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* Campergrundrisse Section - nur für Camperausbau */}
+    {leistung.slug === 'camperausbau' && (
+      <section class="section">
+        <div class="container">
+          <div class="fade-in">
+            <h2>Unsere bewährten Campergrundrisse</h2>
+            <p class="section__subtitle">
+              Entdecke unsere sorgfältig entwickelten Campergrundrisse, die als flexible Basis für deinen individuellen Ausbau dienen. Jeder Grundriss bietet eine durchdachte Struktur, die wir gemeinsam mit dir an deine spezifischen Wünsche und Fahrzeugtypen anpassen.
+            </p>
+          </div>
+          <div class="grundrisse-grid">
+            {grundrisse.map((grundriss, index) => {
+              const imageSrc = getImage('/images/camper-grundriss/camper-grundriss-kastenwagen-blue.png');
+              const loadingAttr = index < 1 ? 'eager' : 'lazy';
+              return (
+                <a href={`/camper-grundrisse/${grundriss.name}`} class="grundriss-card fade-in">
+                  <div class="grundriss-card__image-wrapper">
+                    {imageSrc && (
+                      <Picture
+                        src={imageSrc}
+                        alt={grundriss.title}
+                        widths={[400, 800, 1200]}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        formats={['avif', 'webp', 'png']}
+                        loading={loadingAttr}
+                        quality={85}
+                      />
+                    )}
+                    <div class="grundriss-card__overlay">
+                      <h3 class="grundriss-card__title">Blue</h3>
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* CTA Section */}
+    <section class="section">
+      <div class="container">
+        <div class="cta-section fade-in">
+          <h2>Bereit für dein Projekt?</h2>
+          <p class="cta-text">
+            {leistung.slug === 'camperausbau' ? (
+              <>Lass uns gemeinsam deine Idee verwirklichen. Wir beraten dich gerne und unverbindlich zu deinem Camperausbau in Leipzig und unterstützen dich bei der Planung, Umsetzung und Optimierung deines individuellen Camping- oder Vanlife-Projekts.</>
+            ) : leistung.slug === 'massivholztische' ? (
+              <>Lass uns gemeinsam deine Idee verwirklichen. Wir beraten dich gerne und unverbindlich zu deinem Tischprojekt in Leipzig und unterstützen dich bei Planung, Design und Fertigung individueller Tischlösungen.</>
+            ) : leistung.slug === 'cnc-fraesarbeiten' ? (
+              <>Lass uns gemeinsam deine Idee verwirklichen. Wir beraten dich gerne und unverbindlich zu deinen CNC-Fräsarbeiten in Leipzig – ob Prototyp, Einzelteil, Serie oder Sonderanfertigung. Von der Planung bis zur Fertigung unterstützen wir dich bei deinem Projekt.</>
+            ) : (
+              <>Lass uns gemeinsam deine Idee verwirklichen. Wir beraten dich gerne und unverbindlich zu deinem {leistung.data.title.toLowerCase()}-Projekt.</>
+            )}
+          </p>
+          <a href="/kontakt" class="btn btn--primary btn--large">Projekt anfragen</a>
+        </div>
+      </div>
+    </section>
+
+    {/* Beispielprojekte Section */}
+    {relatedProjects.length > 0 && (
+      <section class="section">
+        <div class="container">
+          <div class="section__header fade-in">
+            <h2 class="section__title">Referenzen</h2>
+            <p class="section__subtitle">
+              Entdecke unsere realisierten Projekte
+            </p>
+          </div>
+          <div class="projects-grid">
+            {relatedProjects.map((project) => {
+                const imageSrc = getImage(project.data.images[0].src);
+              // Alle Beispielprojekte sind unterhalb des Folds (nach mehreren Sections)
+              const loadingAttr = 'lazy';
+              return (
+                <a href={`/referenzen/${project.slug}`} class="project-card fade-in" data-category={project.data.category}>
+                  <Picture
+                    src={imageSrc}
+                    alt={project.data.images[0].alt}
+                    widths={[400, 800, 1200]}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    formats={['avif', 'webp', 'jpg']}
+                    loading={loadingAttr}
+                    quality={85}
+                  />
+                  <span class="category">{project.data.category}</span>
+                  <div class="project-card-content">
+                    <h3>{project.data.title}</h3>
+                    <p>{project.data.description}</p>
+                    <span class="card-link">Mehr erfahren →</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>
+

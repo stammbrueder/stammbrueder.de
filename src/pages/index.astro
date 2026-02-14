@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Card from '../components/Card.astro';
+import { Picture } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+// Hero Slideshow Bilder importieren
+import heroImage1 from '../assets/images/leistungen/camperausbau/camper-wald.jpg';
+import heroImage2 from '../assets/images/referenzen/campingbus-blue/campingbus-mercedes-sprinter-blue-08.jpg';
+import heroImage3 from '../assets/images/leistungen/camperausbau/camperbus-mercedes.jpg';
+import heroImage4 from '../assets/images/referenzen/couchtisch-bongossi/couchtisch_bongossi_1.jpg';
+import heroImage5 from '../assets/images/hero/stammbrueder-hero.jpg';
+
+let featuredProjects = await getCollection('referenzen', ({ data }) => data.featured);
+let featuredLeistungen = await getCollection('leistungen', ({ data }) => data.featured);
+
+const heroImages = [
+  heroImage1,
+  heroImage2,
+  heroImage3,
+  heroImage4,
+  heroImage5
+];
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Stammbrüder",
+  "url": "https://stammbrueder.de",
+  "logo": "https://stammbrueder.de/images/logo.svg",
+  "description": "Professionelle Holzwerkstatt für Tische, Camperausbau und individuelle Maßanfertigungen",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Leipzig",
+    "addressCountry": "DE"
+  },
+  "email": "hallo@stammbrueder.de",
+  "sameAs": [
+    "https://www.instagram.com/stammbrueder"
+  ],
+  "foundingDate": "2020",
+  "founders": [
+    {"@type": "Person", "name": "Ralf"},
+    {"@type": "Person", "name": "Tony"},
+    {"@type": "Person", "name": "Clemens"}
+  ]
+};
+---
+
+<BaseLayout
+  title="Stammbrüder – Holzwerkstatt Leipzig für Camperausbau, CNC & Massivholztische"
+  description="Holzwerkstatt in Leipzig für Camperausbau, Massivholztische und individuelle Holzprojekte – persönlich geplant und handgefertigt."
+  ogImage="https://stammbrueder.de/images/hero/stammbrueder-hero.jpg"
+  ogUrl="https://stammbrueder.de"
+  canonical="https://stammbrueder.de"
+  structuredData={structuredData}
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="hero">
+      <div class="hero__slideshow">
+        {heroImages.map((image, index) => {
+          const heroAltTexts = [
+            "Camperausbau im Wald - Individueller Van-Ausbau für Abenteuer in der Natur. Handgefertigte Einrichtung aus hochwertigem Holz.",
+            "Campingbus Mercedes Sprinter in Blau - Professioneller Camperausbau mit maßgeschneiderter Inneneinrichtung. Moderner Van-Ausbau aus Leipzig.",
+            "Camperbus Mercedes - Handwerklicher Camperausbau mit durchdachter Raumplanung. Individuelle Lösungen für deinen Van.",
+            "Couchtisch aus Bongossi - Massivholztisch mit natürlicher Maserung. Handgefertigter Tisch als Unikat für dein Zuhause.",
+            "Holzwerkstatt Stammbrüder mit modernen Maschinen für Camperausbau, CNC-Fräsarbeiten und individuelle Massivholztische. Handwerkliche Qualität aus Leipzig."
+          ];
+          return (
+            <Picture
+              src={image}
+              alt={heroAltTexts[index]}
+              class={`hero__slide ${index === 0 ? 'hero__slide--active' : ''}`}
+              widths={[1920, 2560, 3840]}
+              sizes="100vw"
+              formats={['avif', 'webp', 'jpg']}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              quality={85}
+            />
+          );
+        })}
+      </div>
+      <div class="hero__content fade-in">
+        <h1>Wertiges aus Holz<br><small>Camperausbau, CNC-Fräsarbeiten & Tische aus Leipzig</small></h1>
+        <div class="hero__cta">
+          <a href="mailto:hallo@stammbrueder.de" class="btn btn--primary btn--large">Projekt anfragen</a>
+        </div>
+      </div>
+      <div class="scroll-indicator">↓</div>
+    </section>
+
+    <section class="section" id="next-section">
+      <div class="container">
+        <div class="section__header fade-in">
+          <h2 class="section__title">Handwerk trifft auf moderne Ästhetik</h2>
+          <p class="section__subtitle">
+            Wir planen gemeinsam dein Projekt – ob Camperausbau, maßgefertigte Tische oder individuelle Lösungen in Leipzig, Halle und Umgebung – und setzen deine Vorstellungen erst digital und dann mit präziser Handarbeit in die Realität um.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section__header section__header--full-width fade-in">
+          <h2 class="section__title">Unser Handwerk</h2>
+          <p class="section__subtitle">
+            Von der Planung bis zur Fertigung – wir realisieren deine Vision
+          </p>
+          <div class="section__content">
+            <p>
+              Unsere Holzwerkstatt in Leipzig steht für maßgeschneiderte Projekte, die mit Sorgfalt und Leidenschaft entstehen. Wir begleiten dich beim <strong>Camperausbau Leipzig</strong> und verwandeln deinen Van in ein gemütliches, funktionales Zuhause für unterwegs. Außerdem fertigen wir hochwertige <strong>Massivholztische</strong> aus ausgewählten Hölzern und realisieren präzise <strong>CNC-Fräsarbeiten</strong> für individuelle Formen und passgenaue Bauteile. Jede Idee beginnt mit einer sorgfältigen CAD-Planung und wird durch die Kombination aus moderner CNC-Technik und traditionellem Handwerk zu einem Ergebnis, das langlebig ist und genau zu deinen Vorstellungen passt.
+            </p>
+          </div>
+        </div>
+        <div class="grid grid--2">
+          {featuredLeistungen.map((leistung, index) => {
+            // Verwende cardDescription mit Fallback auf description
+            const cardDescription = leistung.data.cardDescription || leistung.data.description;
+            return (
+              <Card
+                title={leistung.data.title}
+                description={cardDescription}
+                image={leistung.data.images[0].src}
+                imageAlt={leistung.data.images[0].alt}
+                href={`/${leistung.slug}`}
+                class={`fade-in stagger-${index + 1}`}
+              />
+            );
+          })}
+        </div>
+        <div class="section__cta fade-in">
+          <a href="/leistungen" class="btn btn--outline">Alle Leistungen ansehen</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section__header fade-in">
+          <h2 class="section__title">Ausgewählte Werkstücke</h2>
+        </div>
+        <div class="grid grid--3">
+          {featuredProjects.map((project, index) => (
+            <Card
+              title={project.data.title}
+              description={project.data.description}
+              image={project.data.images[0].src}
+              imageAlt={project.data.images[0].alt}
+              href={`/referenzen/${project.slug}`}
+              class={`fade-in stagger-${index + 1}`}
+            />
+          ))}
+        </div>
+        <div class="section__cta fade-in">
+          <a href="/referenzen" class="btn btn--outline">Alle Werkstücke ansehen</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  // Smooth scroll functionality for scroll indicator
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    const nextSection = document.getElementById('next-section');
+
+    if (scrollIndicator && nextSection) {
+      scrollIndicator.addEventListener('click', function() {
+        nextSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      });
+    }
+
+    // Hero Slideshow
+    const heroSlides = document.querySelectorAll<HTMLElement>('.hero__slide');
+    if (heroSlides.length > 0) {
+      let currentSlide = 0;
+      const totalSlides = heroSlides.length;
+
+      function showNextSlide() {
+        // Remove active class from current slide
+        heroSlides[currentSlide].classList.remove('hero__slide--active');
+
+        // Move to next slide
+        currentSlide = (currentSlide + 1) % totalSlides;
+
+        // Add active class to new slide
+        heroSlides[currentSlide].classList.add('hero__slide--active');
+      }
+
+      setInterval(showNextSlide, 4500);
+    }
+  });
+</script>

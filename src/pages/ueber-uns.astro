@@ -1,0 +1,132 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import { getImage } from '../utils/imageMap';
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "mainEntity": {
+    "@type": "Organization",
+    "name": "Stammbrüder",
+    "description": "Drei Leipziger die sich den Traum einer eigenen Holzwerkstatt erfüllt haben",
+    "founders": [
+      {"@type": "Person", "name": "Ralf"},
+      {"@type": "Person", "name": "Tony"},
+      {"@type": "Person", "name": "Clemens"}
+    ]
+  }
+};
+---
+
+<BaseLayout
+  title="Über uns – Die Stammbrüder aus Leipzig"
+  description="Drei Freunde aus Leipzig mit Leidenschaft für Holz – wir fertigen Camper, Tische und individuelle Projekte."
+  ogImage="https://stammbrueder.de/images/team/teamfoto-stammbrueder-camper.jpeg"
+  ogUrl="https://stammbrueder.de/ueber-uns"
+  canonical="https://stammbrueder.de/ueber-uns"
+  structuredData={structuredData}
+  bodyClass="subpage"
+>
+  <Header />
+  
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Über uns</h1>
+        <p class="page-subtitle">Drei Leipziger die sich den Traum einer eigenen Holzwerkstatt erfüllt haben</p>
+      </div>
+    </section>
+
+    {/* Geschichte & Philosophie mit Teamfoto */}
+    <section class="tile-section">
+      <div class="container">
+        <div class="tile-row">
+          <div class="tile tile--content">
+            <h2>Unsere Geschichte & Philosophie</h2>
+            <div class="tile-content">
+              <p>
+              Wir, die Stammbrüder aus Leipzig, sind drei Freunde aus Metallverarbeitung, Softwarentwicklung und UI/UX-Design, die ihre Leidenschaft für Holz verbinden. Seit 2020 setzen wir neben unseren eigentlichen Berufen verschiedenste Projekte um – vom Tisch bis zum kompletten Camperausbau.
+              </p>
+              <p>
+              Gerade im Camperbereich verstehen wir uns als Sparringpartner an deiner Seite: Wir bringen Erfahrung mit, denken mit, entwickeln weiter und unterstützen dich dort, wo du uns brauchst.
+              </p>
+              <p>    
+                Viele Menschen begleiten uns über ein einzelnes Projekt hinaus, oft entsteht dabei eine Verbindung, die sich fast wie Freundschaft anfühlt. Diese gemeinsamen Begegnungen bereichern unsere Arbeit und motivieren uns immer wieder aufs Neue.              </p>
+              <p>
+              Für uns steht die Freude am Handwerk im Mittelpunkt. Holz behandeln wir mit Respekt, Sorgfalt und Liebe zum Detail. Jedes Projekt entsteht nebenberuflich, mit echter Leidenschaft und dem Anspruch, etwas zu schaffen, das sich gut und richtig anfühlt.
+              </p>
+            </div>
+          </div>
+          <div class="tile tile--image">
+            <Picture 
+              src={getImage('/images/team/teamfoto-stammbrueder-camper.jpeg')!}
+              alt="Die drei Stammbrüder in ihrer Holzwerkstatt in Leipzig. Handwerker mit Leidenschaft für Holz und individuelle Projekte."
+              widths={[400, 800, 1200]}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+              formats={['avif', 'webp', 'jpg']}
+              loading="eager"
+              quality={85}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* Unser Team */}
+    <section class="section">
+      <div class="container">
+        <div class="content-section">
+          <h2>Die Stammbrüder für dein Projekt</h2>
+          <div class="team-grid">
+            <div class="team-member fade-in">
+              <Picture 
+                src={getImage('/images/team/ralf.jpg')!}
+                alt="Ralf, einer der drei Stammbrüder, Handwerker mit Leidenschaft für Holz und individuelle Projekte."
+                widths={[200, 400, 600]}
+                sizes="(max-width: 768px) 100vw, 300px"
+                formats={['avif', 'webp', 'jpg']}
+                loading="eager"
+                quality={85}
+                class="team-member-image"
+              />
+              <h3>Ralf</h3>
+              <p>Experte für traditionelle Handwerkstechniken und präzise Konstruktionen. Als echter Problemlöser meistert er jede Herausforderung.</p>
+            </div>
+            
+            <div class="team-member fade-in">
+              <Picture 
+                src={getImage('/images/team/tony.jpg')!}
+                alt="Tony, einer der drei Stammbrüder, Handwerker mit Leidenschaft für Holz und individuelle Projekte."
+                widths={[200, 400, 600]}
+                sizes="(max-width: 768px) 100vw, 300px"
+                formats={['avif', 'webp', 'jpg']}
+                loading="eager"
+                quality={85}
+                class="team-member-image"
+              />
+              <h3>Tony</h3>
+              <p>Spezialist für CAD-Gestaltung und moderne Designkonzepte. Mit seinem technischen Gespür ist er für viele Kunden der bevorzugte Ansprechpartner.</p>
+            </div>
+            
+            <div class="team-member fade-in">
+              <Picture 
+                src={getImage('/images/team/clemens.jpg')!}
+                alt="Clemens, einer der drei Stammbrüder, Handwerker mit Leidenschaft für Holz und individuelle Projekte."
+                widths={[200, 400, 600]}
+                sizes="(max-width: 768px) 100vw, 300px"
+                formats={['avif', 'webp', 'jpg']}
+                loading="eager"
+                quality={85}
+                class="team-member-image"
+              />
+              <h3>Clemens</h3>
+              <p>Fachmann für Oberflächenveredelung und Qualitätskontrolle. Als vielseitiger Allrounder behält er den Überblick und sorgt für ein perfektes Finish.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

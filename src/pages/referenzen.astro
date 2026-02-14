@@ -1,0 +1,132 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Card from '../components/Card.astro';
+import { getCollection } from 'astro:content';
+import { getImage } from '../utils/imageMap';
+
+// Error Handling für Content Collections
+const allProjects = await getCollection('referenzen');
+
+const categories = [...new Set(allProjects.map(project => project.data.category))].sort();
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Unsere Referenzen",
+  "description": "Handgefertigte Tische, Camperausbau und individuelle Holzprojekte",
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": allProjects.map((project, index) => ({
+      "@type": "Product",
+      "position": index + 1,
+      "name": project.data.title,
+      "description": project.data.description,
+      "url": `https://stammbrueder.de/referenzen/${project.slug}`
+    }))
+  }
+};
+---
+
+<BaseLayout
+  title="Referenzen – Individuelle Holzprojekte aus Leipzig"
+  description="Camperausbauten, Massivholztische und maßgeschneiderte Holzprojekte – persönlich gefertigt und einzigartig."
+  ogImage="https://stammbrueder.de/images/projects/projects-overview.jpg"
+  ogUrl="https://stammbrueder.de/referenzen"
+  canonical="https://stammbrueder.de/referenzen"
+  structuredData={structuredData}
+  bodyClass="subpage"
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="page-header">
+      <div class="container">
+        <h1>Unsere Projekte & Arbeiten</h1>
+        <p class="page-subtitle">Entdecke unsere individuellen Holzprojekte</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="filter-section">
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Alle</button>
+            {categories.map(category => (
+              <button class="filter-btn" data-filter={category}>{category}</button>
+            ))}
+          </div>
+        </div>
+
+        <div class="projects-grid">
+          {allProjects.map((project, index) => {
+            const imageSrc = getImage(project.data.images[0].src);
+            // Erste 3 Bilder sind above the fold (nach Filter-Buttons sichtbar)
+            const loadingAttr = index < 3 ? 'eager' : 'lazy';
+            return (
+              <a href={`/referenzen/${project.slug}`} class="project-card fade-in" data-category={project.data.category}>
+                <Picture
+                  src={imageSrc}
+                  alt={project.data.images[0].alt}
+                  widths={[400, 800, 1200]}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  formats={['avif', 'webp', 'jpg']}
+                  loading={loadingAttr}
+                  quality={85}
+                />
+                <span class="category">{project.data.category}</span>
+                <div class="project-card-content">
+                  <h3>{project.data.title}</h3>
+                  <p>{project.data.description}</p>
+                  <span class="card-link">Mehr erfahren →</span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  // Project filter functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    if (filterButtons.length === 0 || projectCards.length === 0) {
+      console.log('Filter elements not found');
+      return;
+    }
+
+    console.log('Found', filterButtons.length, 'filter buttons and', projectCards.length, 'project cards');
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', function(this: HTMLElement, e: Event) {
+        e.preventDefault(); // Prevent default button behavior
+        const filter = this.getAttribute('data-filter');
+        console.log('Filter clicked:', filter);
+
+        // Update active button
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+
+        // Filter projects
+        projectCards.forEach(card => {
+          const category = card.getAttribute('data-category');
+          console.log('Card category:', category, 'Filter:', filter);
+
+          if (filter === 'all' || category === filter) {
+            (card as HTMLElement).style.display = 'block';
+            card.classList.remove('hidden');
+          } else {
+            (card as HTMLElement).style.display = 'none';
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+  });
+</script>
