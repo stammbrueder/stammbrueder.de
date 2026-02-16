@@ -32,7 +32,7 @@ images:
   - src: "/images/referenzen/campingbus-blue/cad-blue-rueckseite-inkl-chassi.png"
     alt: "CAD-Zeichnung des Blue Campingbus von hinten mit Chassis. Planungszeichnung des Mercedes Sprinter Campingbus inklusive Fahrgestell."
 videos:
-  - src: "/images/projects/campingbus-blue/campingbus-mercedes-sprinter-blue-04.mp4"
+  - src: "/videos/referenzen/campingbus-blue/campingbus-mercedes-sprinter-blue-04.mp4"
     alt: "Blue Campingbus Video"
     poster: "/images/referenzen/campingbus-blue/campingbus-mercedes-sprinter-blue-03.jpg"
 specs:
@@ -42,7 +42,7 @@ specs:
   wasser: "Mindestens 100 Liter"
   energie: "Solarstrom und Batterien"
   material: "Multiplex, Eichenholz"
-  grundriss: "Bluea"
+  grundriss: "Blue"
   besonderheiten: "Elektrisches Hubbett, ausziehbare Plattform mit Klapptisch, Standheizung"
 featured: false
 publishedAt: 2024-01-01
