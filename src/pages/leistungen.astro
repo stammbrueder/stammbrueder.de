@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import Card from '../components/Card.astro';
 import { getCollection } from 'astro:content';
 import { getImage } from '../utils/imageMap';
+import { imageWidthsStandard, imageSizesStandard, imageSizesTile, imageFormats, imageQuality } from '../utils/imageConfig';
 import handwerkImage from '../assets/images/leistungen/handwerk-leistungen-individuelle-projekte.jpg';
 import ChatCircleLight from 'phosphor-astro/ChatCircleLight.astro';
 import RulerLight from 'phosphor-astro/RulerLight.astro';
@@ -78,11 +79,11 @@ const structuredData = {
                 <Picture
                   src={imageSrc}
                   alt={leistung.data.images[0].alt}
-                  widths={[400, 800, 1200]}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  formats={['avif', 'webp', 'jpg']}
+                  widths={imageWidthsStandard}
+                  sizes={imageSizesStandard}
+                  formats={imageFormats}
                   loading={loadingAttr}
-                  quality={85}
+                  quality={imageQuality}
                 />
                 <div class="project-card-content">
                   <h2>{leistung.data.title}</h2>
@@ -115,11 +116,11 @@ const structuredData = {
             <Picture
               src={handwerkImage}
               alt="Handwerkliche Holzwerkstatt für individuelle Projekte. Camperausbau, Massivholztische und CNC-Fräsarbeiten."
-              widths={[400, 800, 1200]}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-              formats={['avif', 'webp', 'jpg']}
+              widths={imageWidthsStandard}
+              sizes={imageSizesTile}
+              formats={imageFormats}
               loading="lazy"
-              quality={85}
+              quality={imageQuality}
             />
           </div>
         </div>
@@ -188,11 +189,11 @@ const structuredData = {
             <Picture
               src={getImage('/images/leistungen/massivholztische/ahorntisch-massiv-leipzig.jpg')}
               alt="Handgefertigter Ahorntisch aus Massivholz mit natürlicher Maserung. Individuell geplant und maßgefertigt."
-              widths={[400, 800, 1200]}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-              formats={['avif', 'webp', 'jpg']}
+              widths={imageWidthsStandard}
+              sizes={imageSizesTile}
+              formats={imageFormats}
               loading="lazy"
-              quality={85}
+              quality={imageQuality}
             />
           </div>
         </div>

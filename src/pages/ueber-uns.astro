@@ -3,6 +3,7 @@ import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import { getImage } from '../utils/imageMap';
+import { imageWidthsStandard, imageWidthsSmaller, imageSizesTile, imageSizesTeam, imageFormats, imageQuality } from '../utils/imageConfig';
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -63,11 +64,11 @@ const structuredData = {
             <Picture 
               src={getImage('/images/team/teamfoto-stammbrueder-camper.jpeg')!}
               alt="Die drei Stammbrüder in ihrer Holzwerkstatt in Leipzig. Handwerker mit Leidenschaft für Holz und individuelle Projekte."
-              widths={[400, 800, 1200]}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-              formats={['avif', 'webp', 'jpg']}
+              widths={imageWidthsStandard}
+              sizes={imageSizesTile}
+              formats={imageFormats}
               loading="eager"
-              quality={85}
+              quality={imageQuality}
             />
           </div>
         </div>
@@ -84,11 +85,11 @@ const structuredData = {
               <Picture 
                 src={getImage('/images/team/ralf.jpg')!}
                 alt="Ralf, einer der drei Stammbrüder, Handwerker mit Leidenschaft für Holz und individuelle Projekte."
-                widths={[200, 400, 600]}
-                sizes="(max-width: 768px) 100vw, 300px"
-                formats={['avif', 'webp', 'jpg']}
+                widths={imageWidthsSmaller}
+                sizes={imageSizesTeam}
+                formats={imageFormats}
                 loading="eager"
-                quality={85}
+                quality={imageQuality}
                 class="team-member-image"
               />
               <h3>Ralf</h3>
@@ -99,11 +100,11 @@ const structuredData = {
               <Picture 
                 src={getImage('/images/team/tony.jpg')!}
                 alt="Tony, einer der drei Stammbrüder, Handwerker mit Leidenschaft für Holz und individuelle Projekte."
-                widths={[200, 400, 600]}
-                sizes="(max-width: 768px) 100vw, 300px"
-                formats={['avif', 'webp', 'jpg']}
+                widths={imageWidthsSmaller}
+                sizes={imageSizesTeam}
+                formats={imageFormats}
                 loading="eager"
-                quality={85}
+                quality={imageQuality}
                 class="team-member-image"
               />
               <h3>Tony</h3>
@@ -114,11 +115,11 @@ const structuredData = {
               <Picture 
                 src={getImage('/images/team/clemens.jpg')!}
                 alt="Clemens, einer der drei Stammbrüder, Handwerker mit Leidenschaft für Holz und individuelle Projekte."
-                widths={[200, 400, 600]}
-                sizes="(max-width: 768px) 100vw, 300px"
-                formats={['avif', 'webp', 'jpg']}
+                widths={imageWidthsSmaller}
+                sizes={imageSizesTeam}
+                formats={imageFormats}
                 loading="eager"
-                quality={85}
+                quality={imageQuality}
                 class="team-member-image"
               />
               <h3>Clemens</h3>
