@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import { getImage } from '../utils/imageMap';
+import { imageWidthsStandard, imageFormats, imageQuality } from '../utils/imageConfig';
 
 export interface Props {
   items: Array<{
@@ -17,10 +18,10 @@ export interface Props {
 
 const {
   items,
-  lightboxWidths = [400, 800, 1200],
+  lightboxWidths = imageWidthsStandard,
   lightboxSizes = "(max-width: 1333px) 90vw, 1200px",
-  formats = ['avif', 'webp', 'jpg'],
-  quality = 90
+  formats = imageFormats,
+  quality = imageQuality
 } = Astro.props;
 ---
 

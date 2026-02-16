@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import { getImage } from '../utils/imageMap';
+import { imageWidthsSmaller, imageSizesSmaller, imageFormats, imageQuality } from '../utils/imageConfig';
 import Lightbox from './Lightbox.astro';
 import LightboxInteractions from './LightboxInteractions.astro';
 
@@ -20,10 +21,10 @@ export interface Props {
 
 const {
   items,
-  widths = [200, 400, 800],
-  sizes = "(max-width: 768px) 50vw, 400px",
-  formats = ['avif', 'webp', 'jpg'],
-  quality = 85,
+  widths = imageWidthsSmaller,
+  sizes = imageSizesSmaller,
+  formats = imageFormats,
+  quality = imageQuality,
   eagerLoadCount = 3
 } = Astro.props;
 

@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import Card from '../components/Card.astro';
 import { getCollection } from 'astro:content';
 import { getImage } from '../utils/imageMap';
+import { imageWidthsStandard, imageSizesStandard, imageFormats, imageQuality } from '../utils/imageConfig';
 
 // Error Handling für Content Collections
 const allProjects = await getCollection('referenzen');
@@ -69,11 +70,11 @@ const structuredData = {
                 <Picture
                   src={imageSrc}
                   alt={project.data.images[0].alt}
-                  widths={[400, 800, 1200]}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  formats={['avif', 'webp', 'jpg']}
+                  widths={imageWidthsStandard}
+                  sizes={imageSizesStandard}
+                  formats={imageFormats}
                   loading={loadingAttr}
-                  quality={85}
+                  quality={imageQuality}
                 />
                 <span class="category">{project.data.category}</span>
                 <div class="project-card-content">

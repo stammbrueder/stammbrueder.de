@@ -38,7 +38,7 @@ export default defineConfig({
     service: {
       entrypoint: 'astro/assets/services/sharp',
       config: {
-        limitInputPixels: false,
+        limitInputPixels: true,
       }
     },
     // Unterstützte Formate
