@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   output: 'static',
   site: 'https://stammbrueder.de',
+  trailingSlash: 'never',
   redirects: {
     '/camper/blue/': '/referenzen/campingbus-blue',
     '/das-sind-wir/': '/ueber-uns',
