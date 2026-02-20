@@ -199,8 +199,6 @@ const structuredData = {
     ? 'Handgefertigte Massivholztische aus Leipzig – individuell geplant und hochwertig verarbeitet.'
     : `${leistung.data.title} – ${leistung.data.description}. Handgefertigt von den Stammbrüdern in Leipzig.`}
   ogImage={`https://stammbrueder.de${leistung.data.images[0].src}`}
-  ogUrl={`https://stammbrueder.de/${leistung.slug}`}
-  canonical={`https://stammbrueder.de/${leistung.slug}`}
   structuredData={structuredData}
   bodyClass="project-page"
 >
@@ -366,7 +364,7 @@ const structuredData = {
               const imageSrc = getImage('/images/camper-grundriss/camper-grundriss-kastenwagen-blue.png');
               const loadingAttr = index < 1 ? 'eager' : 'lazy';
               return (
-                <a href={`/camper-grundrisse/${grundriss.name}`} class="grundriss-card fade-in">
+                <a href={`/camper-grundrisse/${grundriss.name}/`} class="grundriss-card fade-in">
                   <div class="grundriss-card__image-wrapper">
                     {imageSrc && (
                       <Picture
@@ -407,7 +405,7 @@ const structuredData = {
               <>Lass uns gemeinsam deine Idee verwirklichen. Wir beraten dich gerne und unverbindlich zu deinem {leistung.data.title.toLowerCase()}-Projekt.</>
             )}
           </p>
-          <a href="/kontakt" class="btn btn--primary btn--large">Projekt anfragen</a>
+          <a href="/kontakt/" class="btn btn--primary btn--large">Projekt anfragen</a>
         </div>
       </div>
     </section>
@@ -428,7 +426,7 @@ const structuredData = {
               // Alle Beispielprojekte sind unterhalb des Folds (nach mehreren Sections)
               const loadingAttr = 'lazy';
               return (
-                <a href={`/referenzen/${project.slug}`} class="project-card fade-in" data-category={project.data.category}>
+                <a href={`/referenzen/${project.slug}/`} class="project-card fade-in" data-category={project.data.category}>
                   <Picture
                     src={imageSrc}
                     alt={project.data.images[0].alt}

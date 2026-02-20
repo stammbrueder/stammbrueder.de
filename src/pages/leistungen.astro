@@ -50,8 +50,6 @@ const structuredData = {
   title="Unsere Leistungen Camper, CNC & Massivholztische"
   description="Camperausbau, Massivholztische und CNC-Fräsarbeiten aus Leipzig – individuell geplant und präzise gefertigt."
   ogImage="https://stammbrueder.de/images/projects/projects-overview.jpg"
-  ogUrl="https://stammbrueder.de/leistungen"
-  canonical="https://stammbrueder.de/leistungen"
   structuredData={structuredData}
   bodyClass="subpage"
 >
@@ -75,7 +73,7 @@ const structuredData = {
             // Verwende cardDescription mit Fallback auf description
             const cardDescription = leistung.data.cardDescription || leistung.data.description;
             return (
-              <a href={`/${leistung.slug}`} class="project-card fade-in">
+              <a href={`/${leistung.slug}/`} class="project-card fade-in">
                 <Picture
                   src={imageSrc}
                   alt={leistung.data.images[0].alt}
@@ -108,7 +106,7 @@ const structuredData = {
                 Wir freuen uns darauf, deine Ideen zu hören und gemeinsam mit dir ein maßgeschneidertes Konzept zu entwickeln.
               </p>
               <div class="cta-section fade-in">
-                <a href="/kontakt" class="btn btn--primary btn--large">Projekt anfragen</a>
+                <a href="/kontakt/" class="btn btn--primary btn--large">Projekt anfragen</a>
               </div>
             </div>
           </div>

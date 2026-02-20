@@ -34,8 +34,6 @@ const structuredData = {
   title="Referenzen – Individuelle Holzprojekte aus Leipzig"
   description="Camperausbauten, Massivholztische und maßgeschneiderte Holzprojekte – persönlich gefertigt und einzigartig."
   ogImage="https://stammbrueder.de/images/projects/projects-overview.jpg"
-  ogUrl="https://stammbrueder.de/referenzen"
-  canonical="https://stammbrueder.de/referenzen"
   structuredData={structuredData}
   bodyClass="subpage"
 >
@@ -66,7 +64,7 @@ const structuredData = {
             // Erste 3 Bilder sind above the fold (nach Filter-Buttons sichtbar)
             const loadingAttr = index < 3 ? 'eager' : 'lazy';
             return (
-              <a href={`/referenzen/${project.slug}`} class="project-card fade-in" data-category={project.data.category}>
+              <a href={`/referenzen/${project.slug}/`} class="project-card fade-in" data-category={project.data.category}>
                 <Picture
                   src={imageSrc}
                   alt={project.data.images[0].alt}
