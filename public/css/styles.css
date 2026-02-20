@@ -2820,30 +2820,13 @@ body.project-page .project-header {
 
 .lightbox-picture,
 .lightbox-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     max-width: 90vw;
     max-height: 90vh;
     width: auto;
     height: auto;
     display: none;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
     z-index: 1;
-}
-
-.lightbox-picture.lightbox-item-visible,
-.lightbox-video.lightbox-item-visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.lightbox-picture.lightbox-item-hidden,
-.lightbox-video.lightbox-item-hidden {
-    visibility: hidden;
 }
 
 .lightbox-picture[style*="display: block"],
