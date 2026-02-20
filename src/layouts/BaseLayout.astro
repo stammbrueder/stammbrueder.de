@@ -1,6 +1,7 @@
 ---
 import { SEO } from 'astro-seo';
 import Footer from '../components/Footer.astro';
+import criticalCss from '../styles/critical.css?raw';
 
 export interface Props {
   title: string;
@@ -11,6 +12,9 @@ export interface Props {
   canonical?: string;
   structuredData?: object;
   bodyClass?: string;
+  /** LCP-Bild für Preload (nur Startseite) */
+  preloadImage?: string;
+  preloadImageType?: string;
 }
 
 const {
@@ -21,7 +25,9 @@ const {
   ogUrl = Astro.url.href,
   canonical = Astro.url.href,
   structuredData,
-  bodyClass = ""
+  bodyClass = "",
+  preloadImage,
+  preloadImageType = "image/webp",
 } = Astro.props;
 
 // Convert keywords to array if string
@@ -73,8 +79,21 @@ const finalOgImage = ogImage || defaultOgImage;
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-  <!-- Load CSS synchronously to prevent FOUC -->
-  <link rel="stylesheet" href="/css/styles.css">
+  <!-- Font-Preload für LCP -->
+  <link rel="preload" href="/fonts/inter/Inter[wght].woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/playfair-display/PlayfairDisplay[wght].woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Hero LCP-Preload (nur Startseite) -->
+  {preloadImage && (
+    <link rel="preload" as="image" href={preloadImage} type={preloadImageType}>
+  )}
+
+  <!-- Critical CSS inline -->
+  <style set:html={criticalCss} />
+
+  <!-- Vollständiges CSS asynchron laden -->
+  <link rel="stylesheet" href="/css/styles.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/css/styles.css"></noscript>
 </head>
 <body class={bodyClass}>
   <slot />
