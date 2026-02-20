@@ -49,35 +49,71 @@ const { items } = Astro.props;
       const items = getAllLightboxItems();
       items.forEach(item => {
         item.style.display = 'none';
+        item.classList.remove('lightbox-item-visible', 'lightbox-item-hidden');
       });
     }
     
+    function updateCaptionAndMedia(item) {
+      let altText = '';
+      if (item.classList.contains('lightbox-picture')) {
+        const img = item.querySelector('img');
+        altText = img ? img.alt : '';
+      } else if (item.classList.contains('lightbox-video')) {
+        altText = 'Video';
+        if (item.tagName === 'VIDEO') {
+          item.currentTime = 0;
+          item.play().catch(e => console.warn('Video autoplay failed:', e));
+        }
+      }
+      if (lightboxCaption) {
+        lightboxCaption.textContent = altText;
+      }
+      if (lightboxLoading) {
+        lightboxLoading.style.display = 'none';
+      }
+    }
+    
     function showLightboxItem(index) {
-      hideAllLightboxItems();
       const items = getAllLightboxItems();
-      if (index >= 0 && index < items.length) {
-        const item = items[index];
+      if (index < 0 || index >= items.length) return;
+      
+      const item = items[index];
+      const currentVisible = items.find(el => el.classList.contains('lightbox-item-visible'));
+      
+      function finishTransition() {
+        items.forEach(i => {
+          i.style.display = 'none';
+          i.classList.remove('lightbox-item-visible');
+          i.classList.add('lightbox-item-hidden');
+        });
+        item.classList.remove('lightbox-item-hidden');
         item.style.display = 'block';
-        
-        let altText = '';
-        if (item.classList.contains('lightbox-picture')) {
-          const img = item.querySelector('img');
-          altText = img ? img.alt : '';
-        } else if (item.classList.contains('lightbox-video')) {
-          altText = 'Video';
-          if (item.tagName === 'VIDEO') {
-            item.currentTime = 0;
-            item.play().catch(e => console.warn('Video autoplay failed:', e));
-          }
+        requestAnimationFrame(() => {
+          item.classList.add('lightbox-item-visible');
+        });
+        updateCaptionAndMedia(item);
+      }
+      
+      if (currentVisible && currentVisible !== item) {
+        if (currentVisible.tagName === 'VIDEO') {
+          currentVisible.pause();
+          currentVisible.currentTime = 0;
         }
-        
-        if (lightboxCaption) {
-          lightboxCaption.textContent = altText;
-        }
-        
-        if (lightboxLoading) {
-          lightboxLoading.style.display = 'none';
-        }
+        currentVisible.classList.remove('lightbox-item-visible');
+        let done = false;
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          currentVisible.classList.add('lightbox-item-hidden');
+          currentVisible.style.display = 'none';
+          finishTransition();
+        };
+        currentVisible.addEventListener('transitionend', (e) => {
+          if (e.propertyName === 'opacity') cleanup();
+        });
+        setTimeout(cleanup, 400);
+      } else {
+        finishTransition();
       }
     }
     
