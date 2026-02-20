@@ -898,10 +898,10 @@ if (document.readyState === 'loading') {
 }
 
 // Export functions for global use
+// initNavigation wurde nach MobileMenu.astro migriert (client:load)
 window.Stammbrueder = {
     debounce,
     throttle,
-    initNavigation,
     initProjectFilters,
     ...(window.openLightbox && { openLightbox: window.openLightbox })
 };
