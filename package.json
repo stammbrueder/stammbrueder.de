@@ -2,7 +2,7 @@
   "name": "stammbrueder-website",
   "type": "module",
   "version": "1.0.0",
-  "description": "Stammbrüder Holzwerkstatt Website - Astro-basierte Website für Leipzig",
+  "description": "Stammbr\u00fcder Holzwerkstatt Website - Astro-basierte Website f\u00fcr Leipzig",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -21,7 +21,7 @@
     "seo",
     "performance"
   ],
-  "author": "Stammbrüder",
+  "author": "Stammbr\u00fcder",
   "license": "UNLICENSED",
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
@@ -39,5 +39,8 @@
     "@vitest/ui": "^4.0.14",
     "sharp": "^0.34.4",
     "vitest": "^4.0.14"
+  },
+  "overrides": {
+    "lodash": "4.17.23"
   }
 }
