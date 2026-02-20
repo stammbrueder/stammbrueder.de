@@ -6,11 +6,11 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   output: 'static',
   site: 'https://stammbrueder.de',
-  trailingSlash: 'never',
+  trailingSlash: 'always',
   redirects: {
-    '/camper/blue/': '/referenzen/campingbus-blue',
-    '/das-sind-wir/': '/ueber-uns',
-    '/tische/': '/massivholztische',
+    '/camper/blue/': '/referenzen/campingbus-blue/',
+    '/das-sind-wir/': '/ueber-uns/',
+    '/tische/': '/massivholztische/',
   },
   integrations: [
     sitemap({

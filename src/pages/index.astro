@@ -53,8 +53,6 @@ const structuredData = {
   title="Stammbrüder – Holzwerkstatt Leipzig für Camperausbau, CNC & Massivholztische"
   description="Holzwerkstatt in Leipzig für Camperausbau, Massivholztische und individuelle Holzprojekte – persönlich geplant und handgefertigt."
   ogImage="https://stammbrueder.de/images/hero/stammbrueder-hero.jpg"
-  ogUrl="https://stammbrueder.de"
-  canonical="https://stammbrueder.de"
   structuredData={structuredData}
 >
   <Header />
@@ -127,14 +125,14 @@ const structuredData = {
                 description={cardDescription}
                 image={leistung.data.images[0].src}
                 imageAlt={leistung.data.images[0].alt}
-                href={`/${leistung.slug}`}
+                href={`/${leistung.slug}/`}
                 class={`fade-in stagger-${index + 1}`}
               />
             );
           })}
         </div>
         <div class="section__cta fade-in">
-          <a href="/leistungen" class="btn btn--outline">Alle Leistungen ansehen</a>
+          <a href="/leistungen/" class="btn btn--outline">Alle Leistungen ansehen</a>
         </div>
       </div>
     </section>
@@ -151,13 +149,13 @@ const structuredData = {
               description={project.data.description}
               image={project.data.images[0].src}
               imageAlt={project.data.images[0].alt}
-              href={`/referenzen/${project.slug}`}
+              href={`/referenzen/${project.slug}/`}
               class={`fade-in stagger-${index + 1}`}
             />
           ))}
         </div>
         <div class="section__cta fade-in">
-          <a href="/referenzen" class="btn btn--outline">Alle Werkstücke ansehen</a>
+          <a href="/referenzen/" class="btn btn--outline">Alle Werkstücke ansehen</a>
         </div>
       </div>
     </section>

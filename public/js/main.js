@@ -263,14 +263,16 @@ function initSmoothScrolling() {
 
 // Active Navigation
 function initActiveNavigation() {
-    const currentPath = window.location.pathname;
+    const currentPath = (window.location.pathname.replace(/\/$/, '') || '/');
     const navLinks = document.querySelectorAll('.nav-links a');
     const contactBtn = document.querySelector('.nav-contact-btn');
+
+    const leistungenPaths = ['/leistungen', '/massivholztische', '/camperausbau', '/cnc-fraesarbeiten'];
 
     navLinks.forEach(link => {
         link.classList.remove('active');
 
-        const linkPath = new URL(link.href).pathname;
+        const linkPath = (new URL(link.href).pathname.replace(/\/$/, '') || '/');
 
         // Exact match
         if (currentPath === linkPath ||
@@ -283,12 +285,17 @@ function initActiveNavigation() {
         if (linkPath === '/referenzen' && (currentPath === '/referenzen' || currentPath.startsWith('/referenzen/'))) {
             link.classList.add('active');
         }
+
+        // Special handling for "Unser Handwerk" - active on leistungen and sub-pages
+        if (linkPath === '/leistungen' && leistungenPaths.includes(currentPath)) {
+            link.classList.add('active');
+        }
     });
 
     // Update contact button active state
     if (contactBtn) {
         contactBtn.classList.remove('active');
-        const contactPath = new URL(contactBtn.href).pathname;
+        const contactPath = (new URL(contactBtn.href).pathname.replace(/\/$/, '') || '/');
         if (currentPath === contactPath) {
             contactBtn.classList.add('active');
         }

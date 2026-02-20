@@ -149,8 +149,6 @@ const structuredData = {
     ? 'Zubehör für Vans: Trittstufen, Regale und Arbeitsplatten – passgenau gefertigt.'
     : `${project.data.title} – ${project.data.description}. Handgefertigt von den Stammbrüdern in Leipzig.`}
   ogImage={`https://stammbrueder.de${project.data.images[0].src}`}
-  ogUrl={`https://stammbrueder.de/referenzen/${project.slug}`}
-  canonical={`https://stammbrueder.de/referenzen/${project.slug}`}
   structuredData={structuredData}
   bodyClass="project-page"
 >
@@ -209,7 +207,7 @@ const structuredData = {
               
               // Spezielle Behandlung für Grundriss: Link zu Grundriss-Seite erstellen
               const isGrundriss = key.toLowerCase() === 'grundriss';
-              const grundrissHref = '/camper-grundrisse/kastenwagen-blue';
+              const grundrissHref = '/camper-grundrisse/kastenwagen-blue/';
               
               return (
                 <div class="spec-item">
