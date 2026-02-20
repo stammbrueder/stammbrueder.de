@@ -1,7 +1,6 @@
 ---
 import { SEO } from 'astro-seo';
 import Footer from '../components/Footer.astro';
-import criticalCss from '../styles/critical.css?raw';
 
 export interface Props {
   title: string;
@@ -88,12 +87,8 @@ const finalOgImage = ogImage || defaultOgImage;
     <link rel="preload" as="image" href={preloadImage} type={preloadImageType}>
   )}
 
-  <!-- Critical CSS inline -->
-  <style set:html={criticalCss} />
-
-  <!-- Vollständiges CSS asynchron laden -->
-  <link rel="stylesheet" href="/css/styles.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="/css/styles.css"></noscript>
+  <!-- Load CSS synchronously to prevent FOUC -->
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class={bodyClass}>
   <slot />
