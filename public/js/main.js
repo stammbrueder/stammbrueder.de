@@ -744,7 +744,7 @@ function initGallerySlider() {
     let touchEndX = 0;
 
     track.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
+        touchStartX = e.touches[0].screenX;
     }, { passive: true });
 
     track.addEventListener('touchend', (e) => {
@@ -873,19 +873,9 @@ function initGallerySlider() {
     }
 
     if (document.readyState === 'complete') {
-        // Seite ist bereits geladen
         scheduleInitialization();
     } else {
-        // Warte auf window.load für vollständiges Laden aller Bilder
-        window.addEventListener('load', () => {
-            scheduleInitialization();
-        }, { once: true });
-        // Fallback: Auch DOMContentLoaded verwenden
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                scheduleInitialization();
-            }, { once: true });
-        }
+        document.addEventListener('DOMContentLoaded', () => scheduleInitialization(), { once: true });
     }
 }
 
